@@ -1,0 +1,9 @@
+{
+  "navigationStyle": "custom",
+  "navigationBarTitleText": "我的",
+  "usingComponents": {
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "theme-switch": "/components/theme-switch/index",
+    "color-theme-switch": "/components/color-theme-switch/index"
+  }
+}

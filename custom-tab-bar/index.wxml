@@ -1,0 +1,7 @@
+<view class="custom-tab-bar theme-root {{themeClass}}">
+  <t-tab-bar value="{{ value }}" theme="tag" split="{{ false }}" bind:change="handleChange">
+    <t-tab-bar-item icon="chat" value="notification" badge-props="{{notificationBadge}}">站内信</t-tab-bar-item>
+    <t-tab-bar-item icon="home" value="workspace">工作台</t-tab-bar-item>
+    <t-tab-bar-item icon="user" value="my">我的</t-tab-bar-item>
+  </t-tab-bar>
+</view>

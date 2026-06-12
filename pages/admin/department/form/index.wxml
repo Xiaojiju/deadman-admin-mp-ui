@@ -1,0 +1,83 @@
+<page-meta page-style="{{pageStyle}}" />
+<view class="page admin-page theme-root {{themeClass}}">
+  <scroll-view class="admin-page__scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="admin-page__form">
+      <view class="admin-page__field" wx:if="{{isEdit}}">
+        <view class="admin-page__label">部门编码</view>
+        <view class="admin-page__readonly">{{deptCode}}</view>
+      </view>
+      <view class="admin-page__field" wx:else>
+        <view class="admin-page__label">部门编码</view>
+        <input
+          class="admin-page__input"
+          placeholder="如 RD_DEPT"
+          placeholder-class="admin-page__placeholder"
+          value="{{deptCode}}"
+          bindinput="onDeptCodeInput"
+        />
+      </view>
+
+      <view class="admin-page__field">
+        <view class="admin-page__label">部门名称</view>
+        <input
+          class="admin-page__input"
+          placeholder="请输入部门名称"
+          placeholder-class="admin-page__placeholder"
+          value="{{deptName}}"
+          bindinput="onDeptNameInput"
+        />
+      </view>
+
+      <view class="admin-page__field">
+        <view class="admin-page__label">上级部门</view>
+        <view class="admin-page__picker" bind:tap="onOpenParentPicker">
+          <text>{{parentText}}</text>
+          <text>›</text>
+        </view>
+      </view>
+
+      <view class="admin-page__field" wx:if="{{isEdit}}">
+        <view class="admin-page__label">状态</view>
+        <view class="admin-page__picker" bind:tap="onOpenStatusPicker">
+          <text>{{statusText}}</text>
+          <text>›</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="admin-page__footer">
+      <button
+        class="admin-page__btn admin-page__btn--primary {{canSubmit ? '' : 'admin-page__btn--disabled'}}"
+        disabled="{{!canSubmit || submitting}}"
+        bind:tap="onSubmit"
+      >
+        <view class="btn-loading" wx:if="{{submitting}}">
+          <t-loading theme="circular" size="40rpx" inherit-color />
+        </view>
+        <block wx:else>保存</block>
+      </button>
+    </view>
+  </scroll-view>
+
+  <t-picker
+    visible="{{parentVisible}}"
+    value="{{parentPickerValue}}"
+    title="选择上级部门"
+    bindconfirm="onParentConfirm"
+    bindcancel="onParentCancel"
+  >
+    <t-picker-item options="{{parentPickerOptions}}"></t-picker-item>
+  </t-picker>
+
+  <t-picker
+    visible="{{statusVisible}}"
+    value="{{statusPickerValue}}"
+    title="选择状态"
+    bindconfirm="onStatusConfirm"
+    bindcancel="onStatusCancel"
+  >
+    <t-picker-item options="{{statusPickerOptions}}"></t-picker-item>
+  </t-picker>
+
+  <t-toast id="t-toast" />
+</view>

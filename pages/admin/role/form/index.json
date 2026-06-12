@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "角色",
+  "usingComponents": {
+    "t-toast": "tdesign-miniprogram/toast/toast"
+  }
+}

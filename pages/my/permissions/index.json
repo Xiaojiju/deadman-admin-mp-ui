@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "我的权限",
+  "usingComponents": {
+    "t-toast": "tdesign-miniprogram/toast/toast"
+  }
+}

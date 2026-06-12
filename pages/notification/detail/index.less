@@ -1,0 +1,62 @@
+@import '/variable.less';
+.detail {
+  min-height: 100vh;
+  background: @color-bg-page;
+  box-sizing: border-box;
+  padding: 32rpx;
+  padding-bottom: 32rpx;
+
+  &--ios {
+    padding-bottom: calc(32rpx + constant(safe-area-inset-bottom));
+    padding-bottom: calc(32rpx + env(safe-area-inset-bottom));
+  }
+
+  &--android {
+    padding-bottom: 32rpx;
+  }
+
+  &__card {
+    background: @color-bg-card;
+    border-radius: 24rpx;
+    padding: 40rpx 32rpx;
+    box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
+  }
+
+  &__title {
+    display: block;
+    font-size: 36rpx;
+    font-weight: 700;
+    color: @color-text-primary;
+    line-height: 52rpx;
+    margin-bottom: 20rpx;
+  }
+
+  &__meta {
+    font-size: 24rpx;
+    color: @color-text-muted;
+    line-height: 36rpx;
+    margin-bottom: 32rpx;
+    padding-bottom: 32rpx;
+    border-bottom: 2rpx solid @color-divider;
+  }
+
+  &__meta-divider {
+    margin: 0 8rpx;
+  }
+
+  &__content {
+    display: block;
+    font-size: 30rpx;
+    color: @color-text-secondary;
+    line-height: 48rpx;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  &__loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80rpx;
+  }
+}

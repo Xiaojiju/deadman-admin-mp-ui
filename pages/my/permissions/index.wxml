@@ -1,0 +1,36 @@
+<page-meta page-style="{{pageStyle}}" />
+<scroll-view class="page admin-page theme-root {{themeClass}}" scroll-y enhanced show-scrollbar="{{false}}">
+  <view class="admin-page__scroll">
+    <view class="admin-page__loading" wx:if="{{loading}}">
+      <t-loading theme="circular" size="48rpx" inherit-color />
+    </view>
+    <block wx:else>
+      <view class="admin-page__form" wx:if="{{roles.length}}">
+        <view class="admin-page__section-title">我的角色</view>
+        <view class="admin-page__item admin-page__item--flat" wx:for="{{roles}}" wx:key="*this">
+          <view class="admin-page__item-row">
+            <view class="admin-page__item-main">
+              <text class="admin-page__item-title admin-page__item-title--inline">{{item}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="admin-page__form">
+        <view class="admin-page__section-title">权限清单{{superAdmin ? '（超级管理员拥有全部权限）' : ''}}</view>
+        <view class="admin-page__item admin-page__item--flat" wx:for="{{permissions}}" wx:key="code">
+          <view class="admin-page__item-row">
+            <view class="admin-page__item-main">
+              <text class="admin-page__item-title admin-page__item-title--inline">{{item.label}}</text>
+            </view>
+            <view class="admin-page__item-aside">
+              <text class="admin-page__item-code">{{item.code}}</text>
+            </view>
+          </view>
+        </view>
+        <view class="admin-page__empty admin-page__empty--compact" wx:if="{{!permissions.length && !superAdmin}}">暂无权限数据</view>
+      </view>
+    </block>
+  </view>
+  <t-toast id="t-toast" />
+</scroll-view>

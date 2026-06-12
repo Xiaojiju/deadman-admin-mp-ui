@@ -1,0 +1,62 @@
+<page-meta page-style="{{pageStyle}}" />
+<view class="page workspace theme-root {{themeClass}}">
+  <scroll-view class="workspace__scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="workspace__body">
+      <view class="workspace__loading" wx:if="{{loading}}">
+        <t-loading theme="circular" size="48rpx" inherit-color />
+      </view>
+
+      <block wx:else>
+        <view class="workspace__search">
+          <view class="workspace__search-icon">
+            <t-icon name="search" size="36rpx" color="#fff" />
+          </view>
+          <input
+            class="workspace__search-input"
+            placeholder="搜索功能..."
+            placeholder-class="workspace__search-placeholder"
+            value="{{keyword}}"
+            bindinput="onSearchInput"
+            confirm-type="search"
+            bindconfirm="onSearchConfirm"
+          />
+        </view>
+
+        <block wx:if="{{sections.length}}">
+          <view class="workspace__card" wx:for="{{sections}}" wx:key="title">
+            <view class="workspace__card-title">{{item.title}}</view>
+            <view class="workspace__grid">
+              <view
+                class="workspace__grid-item"
+                wx:for="{{item.items}}"
+                wx:for-item="module"
+                wx:key="type"
+                bind:tap="onModuleTap"
+                data-type="{{module.type}}"
+              >
+                <view class="workspace__grid-icon">
+                  <t-icon name="{{module.icon}}" size="48rpx" color="{{themeColors.primary}}" />
+                </view>
+                <text class="workspace__grid-label">{{module.label}}</text>
+              </view>
+            </view>
+          </view>
+        </block>
+
+        <view class="workspace__empty" wx:elif="{{hasModules}}">
+          <t-icon name="search" size="80rpx" color="{{themeColors.textPlaceholder}}" />
+          <view class="workspace__empty-title">未找到匹配功能</view>
+          <view class="workspace__empty-desc">试试其他关键词</view>
+        </view>
+
+        <view class="workspace__empty" wx:else>
+          <t-icon name="secured" size="80rpx" color="{{themeColors.textPlaceholder}}" />
+          <view class="workspace__empty-title">暂无可用功能</view>
+          <view class="workspace__empty-desc">当前账号没有可访问的工作台入口</view>
+        </view>
+      </block>
+    </view>
+  </scroll-view>
+
+  <t-message id="t-message" />
+</view>

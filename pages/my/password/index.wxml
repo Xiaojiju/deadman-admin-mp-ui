@@ -1,0 +1,76 @@
+<page-meta page-style="{{pageStyle}}" />
+<scroll-view class="page password theme-root {{themeClass}}" scroll-y enhanced show-scrollbar="{{false}}">
+  <view class="password__body">
+    <view class="password__intro">
+      <view class="password__title">修改登录密码</view>
+      <view class="password__subtitle">新密码长度 8-128 位，修改后请使用新密码登录。</view>
+    </view>
+
+    <view class="password__form">
+      <view class="password__field">
+        <view class="password__label">当前密码</view>
+        <view class="password__input-wrap">
+          <input
+            class="password__input"
+            placeholder="请输入当前密码"
+            placeholder-class="password__placeholder"
+            password="{{!showOldPassword}}"
+            value="{{oldPassword}}"
+            bindinput="onOldPasswordInput"
+          />
+          <view class="password__eye" bind:tap="onToggleOldPassword">
+            <t-icon name="{{showOldPassword ? 'browse' : 'browse-off'}}" size="40rpx" color="{{themeColors.textMuted}}" />
+          </view>
+        </view>
+      </view>
+
+      <view class="password__field">
+        <view class="password__label">新密码</view>
+        <view class="password__input-wrap">
+          <input
+            class="password__input"
+            placeholder="请输入新密码（至少 8 位）"
+            placeholder-class="password__placeholder"
+            password="{{!showNewPassword}}"
+            value="{{newPassword}}"
+            bindinput="onNewPasswordInput"
+          />
+          <view class="password__eye" bind:tap="onToggleNewPassword">
+            <t-icon name="{{showNewPassword ? 'browse' : 'browse-off'}}" size="40rpx" color="{{themeColors.textMuted}}" />
+          </view>
+        </view>
+      </view>
+
+      <view class="password__field">
+        <view class="password__label">确认新密码</view>
+        <view class="password__input-wrap">
+          <input
+            class="password__input"
+            placeholder="请再次输入新密码"
+            placeholder-class="password__placeholder"
+            password="{{!showConfirmPassword}}"
+            value="{{confirmPassword}}"
+            bindinput="onConfirmPasswordInput"
+          />
+          <view class="password__eye" bind:tap="onToggleConfirmPassword">
+            <t-icon name="{{showConfirmPassword ? 'browse' : 'browse-off'}}" size="40rpx" color="{{themeColors.textMuted}}" />
+          </view>
+        </view>
+      </view>
+
+      <button
+        class="password__submit {{canSubmit ? '' : 'password__submit--disabled'}}"
+        disabled="{{!canSubmit || submitting}}"
+        bind:tap="onSubmit"
+      >
+        <view class="btn-loading" wx:if="{{submitting}}">
+          <t-loading theme="circular" size="40rpx" inherit-color />
+        </view>
+        <block wx:else>确认修改</block>
+      </button>
+    </view>
+  </view>
+
+  <t-message id="t-message" />
+  <t-toast id="t-toast" />
+</scroll-view>

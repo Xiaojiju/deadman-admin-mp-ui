@@ -1,0 +1,3 @@
+<view class="admin-fab" wx:if="{{visible}}" bind:tap="onTap">
+  <t-icon name="{{icon}}" size="56rpx" color="#fff" />
+</view>

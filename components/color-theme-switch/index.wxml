@@ -1,0 +1,17 @@
+<view class="color-theme-switch">
+  <view class="color-theme-switch__label" wx:if="{{showLabel}}">{{label}}</view>
+  <view class="color-theme-switch__grid">
+    <view
+      class="color-theme-switch__item {{value === item.id ? 'color-theme-switch__item--active' : ''}}"
+      wx:for="{{themes}}"
+      wx:key="id"
+      data-id="{{item.id}}"
+      bind:tap="onSelect"
+    >
+      <view class="color-theme-switch__swatch" style="background-color: {{item.swatch}};">
+        <t-icon wx:if="{{value === item.id}}" name="check" size="28rpx" color="#ffffff" />
+      </view>
+      <text class="color-theme-switch__name">{{item.label}}</text>
+    </view>
+  </view>
+</view>

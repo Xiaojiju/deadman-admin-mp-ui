@@ -1,0 +1,43 @@
+<page-meta page-style="{{pageStyle}}" />
+<view class="page admin-page theme-root {{themeClass}} role-perms">
+  <scroll-view class="role-perms__scroll" scroll-y enhanced show-scrollbar="{{false}}">
+
+    <view class="admin-page__loading" wx:if="{{loading}}">
+      <t-loading theme="circular" size="48rpx" inherit-color />
+    </view>
+    <block wx:else>
+      <view class="admin-page__form" wx:for="{{groups}}" wx:key="code" wx:for-item="group">
+        <view class="admin-page__section-title">{{group.label}}</view>
+        <view
+          class="admin-page__check-item admin-page__check-item--selectable"
+          wx:for="{{group.permissions}}"
+          wx:key="code"
+          wx:for-item="item"
+          bind:tap="onPermToggle"
+          data-code="{{item.code}}"
+        >
+          <view class="admin-page__check-label">
+            <text>{{item.label}}</text>
+            <text class="admin-page__check-code">{{item.code}}</text>
+          </view>
+          <t-icon name="{{item.selected ? 'check-circle-filled' : 'circle'}}" size="40rpx" color="{{item.selected ? themeColors.primary : themeColors.textMuted}}" />
+        </view>
+      </view>
+    </block>
+  </scroll-view>
+
+  <view class="role-perms__footer">
+    <button
+      class="admin-page__btn admin-page__btn--primary {{canSubmit ? '' : 'admin-page__btn--disabled'}}"
+      disabled="{{!canSubmit || submitting}}"
+      bind:tap="onSubmit"
+    >
+      <view class="btn-loading" wx:if="{{submitting}}">
+        <t-loading theme="circular" size="40rpx" inherit-color />
+      </view>
+      <block wx:else>保存</block>
+    </button>
+  </view>
+
+  <t-toast id="t-toast" />
+</view>

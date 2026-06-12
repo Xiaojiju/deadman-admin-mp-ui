@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "发送站内信",
+  "usingComponents": {
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-toast": "tdesign-miniprogram/toast/toast"
+  }
+}

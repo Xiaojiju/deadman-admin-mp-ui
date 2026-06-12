@@ -1,0 +1,61 @@
+<page-meta page-style="{{pageStyle}}" />
+<view class="page my theme-root {{themeClass}}">
+  <view class="my__bg"></view>
+
+  <scroll-view class="my__scroll" style="padding-top: {{navBarHeight}}px;" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="my__body">
+      <view class="my__profile" bind:tap="onProfile">
+        <view class="my__avatar">
+          <image wx:if="{{isLoggedIn && avatar}}" class="my__avatar-img" src="{{avatar}}" mode="aspectFill" />
+          <t-icon wx:elif="{{!isLoggedIn}}" name="user" size="56rpx" color="#fff" />
+          <text wx:else class="my__avatar-text">{{avatarText}}</text>
+        </view>
+        <view class="my__profile-info">
+          <block wx:if="{{isLoggedIn}}">
+            <view class="my__greeting">{{greeting}}，{{userName}}</view>
+            <view class="my__work-info" wx:if="{{hasWorkInfo}}">
+              <view class="my__work-row" wx:if="{{departmentText}}">
+                <text class="my__work-label">部门</text>
+                <text class="my__work-value">{{departmentText}}</text>
+              </view>
+              <view class="my__work-row" wx:if="{{positionText}}">
+                <text class="my__work-label">职位</text>
+                <text class="my__work-value">{{positionText}}</text>
+              </view>
+              <view class="my__work-row" wx:if="{{roles.length}}">
+                <text class="my__work-label">角色</text>
+                <view class="my__role-tags">
+                  <text class="my__role-tag" wx:for="{{roles}}" wx:key="*this">{{item}}</text>
+                </view>
+              </view>
+            </view>
+            <view class="my__subtitle" wx:else>开始今天的高效工作吧~</view>
+          </block>
+          <block wx:else>
+            <view class="my__greeting my__greeting--login">去登录</view>
+            <view class="my__subtitle">登录后享受更多服务</view>
+          </block>
+        </view>
+      </view>
+
+      <view class="my__card my__card--tools">
+        <view class="my__card-title my__card-title--block">常用工具</view>
+        <view
+          class="my__tool-item"
+          wx:for="{{tools}}"
+          wx:key="label"
+          bind:tap="onToolTap"
+          data-type="{{item.type}}"
+        >
+          <view class="my__tool-left">
+            <t-icon name="{{item.icon}}" size="40rpx" color="{{themeColors.textSecondary}}" />
+            <text class="my__tool-label">{{item.label}}</text>
+          </view>
+          <t-icon name="chevron-right" size="36rpx" color="{{themeColors.textMuted}}" />
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <t-message id="t-message" />
+</view>

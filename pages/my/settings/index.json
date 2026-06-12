@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "设置",
+  "usingComponents": {
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-toast": "tdesign-miniprogram/toast/toast",
+    "theme-switch": "/components/theme-switch/index",
+    "color-theme-switch": "/components/color-theme-switch/index"
+  }
+}

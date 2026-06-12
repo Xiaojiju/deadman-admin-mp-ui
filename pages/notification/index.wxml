@@ -1,0 +1,102 @@
+<page-meta page-style="{{pageStyle}}" />
+<view class="page notification theme-root {{themeClass}}">
+  <view class="notification__header">
+    <view class="notification__mailbox" wx:if="{{canViewSent}}">
+      <view
+        class="notification__mailbox-tab {{mailbox === 'inbox' ? 'notification__mailbox-tab--active' : ''}}"
+        bind:tap="onMailboxChange"
+        data-mailbox="inbox"
+      >
+        <text>收件箱</text>
+        <view class="notification__mailbox-dot" wx:if="{{unreadCount > 0}}"></view>
+      </view>
+      <view
+        class="notification__mailbox-tab {{mailbox === 'sent' ? 'notification__mailbox-tab--active' : ''}}"
+        bind:tap="onMailboxChange"
+        data-mailbox="sent"
+      >
+        已发送
+      </view>
+    </view>
+
+    <view class="notification__filters" wx:if="{{mailbox === 'inbox'}}">
+      <view
+        class="notification__filter {{filter === 'all' ? 'notification__filter--active' : ''}}"
+        bind:tap="onFilterChange"
+        data-filter="all"
+      >
+        全部
+      </view>
+      <view
+        class="notification__filter {{filter === 'unread' ? 'notification__filter--active' : ''}}"
+        bind:tap="onFilterChange"
+        data-filter="unread"
+      >
+        未读
+      </view>
+      <view
+        class="notification__filter {{filter === 'read' ? 'notification__filter--active' : ''}}"
+        bind:tap="onFilterChange"
+        data-filter="read"
+      >
+        已读
+      </view>
+      <text class="notification__mark-read" bind:tap="onMarkAllRead">全部已读</text>
+    </view>
+
+    <view class="notification__search">
+      <t-icon name="search" size="36rpx" color="{{themeColors.textMuted}}" />
+      <input
+        class="notification__search-input"
+        placeholder="搜索标题或内容..."
+        placeholder-class="notification__search-placeholder"
+        value="{{keyword}}"
+        bindinput="onSearchInput"
+        confirm-type="search"
+        bindconfirm="onSearchConfirm"
+      />
+    </view>
+  </view>
+
+  <scroll-view class="notification__list" scroll-y enhanced show-scrollbar="{{false}}">
+    <view
+      class="notification__item {{item.unread ? 'notification__item--unread' : ''}}"
+      wx:for="{{messages}}"
+      wx:key="id"
+      bind:tap="onMessageTap"
+      data-id="{{item.id}}"
+    >
+      <view class="notification__avatar">
+        <t-icon name="mail" size="40rpx" color="{{item.unread ? themeColors.primary : themeColors.textTertiary}}" />
+        <view class="notification__status" wx:if="{{item.unread}}"></view>
+      </view>
+      <view class="notification__content">
+        <view class="notification__row">
+          <text class="notification__name" user-select="{{true}}">{{item.title}}</text>
+          <text class="notification__time">{{item.time}}</text>
+        </view>
+        <view class="notification__row">
+          <view class="notification__snippet-wrap {{item.unread ? 'notification__snippet-wrap--unread' : ''}}">
+            <text class="notification__snippet" user-select="{{true}}">{{item.snippet}}</text>
+          </view>
+          <view class="notification__badge" wx:if="{{item.unread}}"></view>
+        </view>
+      </view>
+    </view>
+
+    <view class="notification__empty" wx:if="{{messages.length === 0}}">
+      <view class="notification__empty-icon">
+        <t-icon name="mail" size="80rpx" color="{{themeColors.textPlaceholder}}" />
+      </view>
+      <view class="notification__empty-title">暂无通知</view>
+      <view class="notification__empty-desc">当前筛选条件下没有消息</view>
+    </view>
+  </scroll-view>
+
+  <view class="notification__fab" wx:if="{{canSend}}" bind:tap="onCompose">
+    <t-icon name="chat-add" size="48rpx" color="#fff" />
+  </view>
+
+  <t-message id="t-message" />
+  <t-toast id="t-toast" />
+</view>

@@ -1,0 +1,329 @@
+@import '/variable.less';
+
+.compose {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: @color-bg-page;
+  position: relative;
+
+  &__scroll {
+    flex: 1;
+    height: 0;
+    padding: 32rpx;
+    padding-bottom: calc(160rpx + env(safe-area-inset-bottom));
+    box-sizing: border-box;
+  }
+
+  &__intro {
+    margin-bottom: 32rpx;
+  }
+
+  &__intro-title {
+    font-size: 40rpx;
+    font-weight: 700;
+    color: @color-text-primary;
+    line-height: 56rpx;
+    margin-bottom: 8rpx;
+  }
+
+  &__intro-desc {
+    font-size: 26rpx;
+    color: @color-text-tertiary;
+    line-height: 40rpx;
+  }
+
+  &__form {
+    background: @color-bg-card;
+    border: 2rpx solid @color-border;
+    border-radius: 20rpx;
+    padding: 8rpx 32rpx 24rpx;
+  }
+
+  &__field {
+    padding: 28rpx 0;
+    border-bottom: 2rpx solid @color-border-light;
+    position: relative;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &--textarea {
+      padding-bottom: 16rpx;
+    }
+
+    &--target {
+      padding-bottom: 8rpx;
+    }
+  }
+
+  &__label {
+    font-size: 28rpx;
+    font-weight: 600;
+    color: @color-text-primary;
+    line-height: 44rpx;
+    margin-bottom: 16rpx;
+  }
+
+  &__input,
+  &__textarea,
+  &__search-input {
+    width: 100%;
+    font-size: 30rpx;
+    color: @color-text-primary;
+    line-height: 44rpx;
+    box-sizing: border-box;
+  }
+
+  &__textarea {
+    min-height: 280rpx;
+    line-height: 48rpx;
+  }
+
+  &__placeholder {
+    color: @color-text-placeholder;
+    font-size: 30rpx;
+  }
+
+  &__select {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 80rpx;
+    padding: 16rpx 24rpx;
+    border: 2rpx solid @color-border-input;
+    border-radius: 12rpx;
+    background: @color-bg-input;
+  }
+
+  &__select-text {
+    font-size: 30rpx;
+    color: @color-text-primary;
+    line-height: 44rpx;
+  }
+
+  &__scope-panel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% - 8rpx);
+    z-index: 20;
+    background: @color-bg-card;
+    border: 2rpx solid @color-border;
+    border-radius: 12rpx;
+    box-shadow: 0 12rpx 40rpx @color-primary-shadow;
+    overflow: hidden;
+  }
+
+  &__scope-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24rpx 28rpx;
+    font-size: 30rpx;
+    color: @color-text-primary;
+    line-height: 44rpx;
+    border-bottom: 2rpx solid @color-border-light;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &--active {
+      background: @color-primary-soft;
+      color: @color-primary;
+    }
+  }
+
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12rpx;
+    margin-bottom: 20rpx;
+  }
+
+  &__tag {
+    display: flex;
+    align-items: center;
+    gap: 10rpx;
+    padding: 8rpx 12rpx 8rpx 8rpx;
+    border: 2rpx solid @color-border;
+    border-radius: 999rpx;
+    background: @color-bg-muted;
+  }
+
+  &__tag-avatar {
+    width: 40rpx;
+    height: 40rpx;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: @color-bg-subtle;
+
+    &--placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  &__tag-name {
+    font-size: 24rpx;
+    color: @color-text-primary;
+    line-height: 36rpx;
+    max-width: 200rpx;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__tag-remove {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rpx;
+  }
+
+  &__search {
+    display: flex;
+    align-items: center;
+    gap: 12rpx;
+    padding: 16rpx 20rpx;
+    border: 2rpx solid @color-border-input;
+    border-radius: 12rpx;
+    background: @color-bg-input;
+    margin-bottom: 16rpx;
+  }
+
+  &__picker {
+    max-height: 480rpx;
+    overflow-y: auto;
+    border: 2rpx solid @color-border;
+    border-radius: 12rpx;
+    background: @color-bg-card;
+  }
+
+  &__picker-loading,
+  &__picker-empty {
+    padding: 48rpx 24rpx;
+    text-align: center;
+    font-size: 26rpx;
+    color: @color-text-muted;
+    line-height: 40rpx;
+  }
+
+  &__picker-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__picker-item {
+    display: flex;
+    align-items: center;
+    gap: 20rpx;
+    padding: 20rpx 24rpx;
+    border-bottom: 2rpx solid @color-border-light;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &--active {
+      background: @color-bg-muted;
+    }
+  }
+
+  &__picker-avatar {
+    width: 72rpx;
+    height: 72rpx;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: @color-bg-muted;
+
+    &--placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  &__picker-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__picker-title {
+    font-size: 28rpx;
+    color: @color-text-primary;
+    line-height: 42rpx;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__picker-subtitle {
+    margin-top: 4rpx;
+    font-size: 24rpx;
+    color: @color-text-muted;
+    line-height: 36rpx;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__footer {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: flex-end;
+    gap: 20rpx;
+    padding: 24rpx 32rpx;
+    padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
+    background: @color-bg-card;
+    border-top: 2rpx solid @color-border-light;
+    box-shadow: 0 -8rpx 24rpx @color-primary-shadow;
+  }
+
+  &__btn {
+    min-width: 180rpx;
+    height: 80rpx;
+    line-height: 80rpx;
+    margin: 0;
+    padding: 0 40rpx;
+    font-size: 30rpx;
+    font-weight: 500;
+    border-radius: 12rpx;
+
+    &::after {
+      border: none;
+    }
+
+    &--cancel {
+      background: @color-bg-card;
+      color: @color-text-primary;
+      border: 2rpx solid @color-border;
+    }
+
+    &--submit {
+      background: @color-btn-primary;
+      color: @color-btn-primary-text;
+      border: none;
+    }
+
+    &--disabled {
+      background: @color-btn-disabled;
+      color: @color-text-inverse;
+    }
+  }
+
+  &__mask {
+    position: fixed;
+    inset: 0;
+    z-index: 15;
+    background: transparent;
+  }
+}

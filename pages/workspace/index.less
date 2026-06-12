@@ -1,0 +1,131 @@
+@import '/variable.less';
+
+.workspace {
+  min-height: 100vh;
+  background: @color-bg-page;
+
+  &__scroll {
+    height: 100vh;
+    box-sizing: border-box;
+    padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
+  }
+
+  &__body {
+    padding: 32rpx 32rpx 48rpx;
+  }
+
+  &__loading {
+    padding: 120rpx 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__search {
+    display: flex;
+    align-items: center;
+    background: @color-bg-card;
+    border-radius: 24rpx;
+    padding: 16rpx 24rpx;
+    margin-bottom: 32rpx;
+    box-shadow: 0 4rpx 20rpx @color-primary-shadow;
+  }
+
+  &__search-icon {
+    width: 72rpx;
+    height: 72rpx;
+    border-radius: 20rpx;
+    background: @gradient-primary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-right: 20rpx;
+  }
+
+  &__search-input {
+    flex: 1;
+    font-size: 28rpx;
+    color: @color-text-primary;
+    line-height: 44rpx;
+  }
+
+  &__search-placeholder {
+    color: @color-text-muted;
+    font-size: 28rpx;
+  }
+
+  &__card {
+    background: @color-bg-card;
+    border-radius: 24rpx;
+    padding: 32rpx;
+    margin-bottom: 24rpx;
+    box-shadow: 0 4rpx 24rpx @color-primary-shadow;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  &__card-title {
+    font-size: 32rpx;
+    font-weight: 600;
+    color: @color-text-primary;
+    line-height: 48rpx;
+    margin-bottom: 24rpx;
+  }
+
+  &__grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32rpx 24rpx;
+  }
+
+  &__grid-item {
+    width: calc((100% - 48rpx) / 3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  &__grid-icon {
+    width: 120rpx;
+    height: 120rpx;
+    border-radius: 32rpx;
+    background: @color-primary-soft;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16rpx;
+  }
+
+  &__grid-label {
+    font-size: 26rpx;
+    color: @color-text-secondary;
+    line-height: 40rpx;
+    text-align: center;
+  }
+
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 120rpx 48rpx;
+    text-align: center;
+  }
+
+  &__empty-title {
+    margin-top: 32rpx;
+    font-size: 32rpx;
+    font-weight: 600;
+    color: @color-text-secondary;
+    line-height: 48rpx;
+  }
+
+  &__empty-desc {
+    margin-top: 12rpx;
+    font-size: 26rpx;
+    color: @color-text-muted;
+    line-height: 40rpx;
+  }
+}

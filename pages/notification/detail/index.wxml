@@ -1,0 +1,19 @@
+<page-meta page-style="{{pageStyle}}" />
+<view class="page detail theme-root {{themeClass}} {{platformClass}}">
+  <view class="detail__card" wx:if="{{message}}">
+    <text class="detail__title" user-select="{{true}}">{{message.title}}</text>
+    <view class="detail__meta">
+      <text user-select="{{true}}">{{message.sender}}</text>
+      <text class="detail__meta-divider">·</text>
+      <text user-select="{{true}}">{{message.detailTime}}</text>
+    </view>
+    <text class="detail__content" user-select="{{true}}">{{message.content}}</text>
+  </view>
+
+  <view class="detail__loading" wx:else>
+    <t-loading theme="circular" size="48rpx" inherit-color />
+  </view>
+
+  <t-message id="t-message" />
+  <t-toast id="t-toast" />
+</view>

@@ -1,0 +1,21 @@
+<view class="theme-switch">
+  <view class="theme-switch__label" wx:if="{{showLabel}}">{{label}}</view>
+  <view class="theme-switch__options">
+    <view
+      class="theme-switch__option {{value === 'light' ? 'theme-switch__option--active' : ''}}"
+      data-theme="light"
+      bind:tap="onSelect"
+    >
+      <t-icon name="sunny" size="36rpx" color="{{value === 'light' ? (themeColors.textInverse || '#ffffff') : (themeColors.textSecondary || 'rgba(0,0,0,0.55)')}}" />
+      <text>浅色</text>
+    </view>
+    <view
+      class="theme-switch__option {{value === 'dark' ? 'theme-switch__option--active' : ''}}"
+      data-theme="dark"
+      bind:tap="onSelect"
+    >
+      <t-icon name="moon" size="36rpx" color="{{value === 'dark' ? (themeColors.textInverse || '#ffffff') : (themeColors.textSecondary || 'rgba(0,0,0,0.55)')}}" />
+      <text>深色</text>
+    </view>
+  </view>
+</view>

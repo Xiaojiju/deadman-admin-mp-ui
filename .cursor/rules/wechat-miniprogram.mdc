@@ -1,0 +1,105 @@
+---
+description: 微信小程序开发规范（页面结构、路由、组件、请求层、样式）
+globs: "{app.js,app.json,app.less,api/**,behaviors/**,components/**,custom-tab-bar/**,pages/**,utils/**,config.js}"
+alwaysApply: false
+---
+
+# 微信小程序开发规范
+
+## 页面结构
+
+每个页面必须包含四件套，文件名统一为 `index`：
+
+```
+pages/{module}/index.js      # 逻辑（Page({})）
+pages/{module}/index.json    # 配置（usingComponents、navigationBarTitleText）
+pages/{module}/index.wxml    # 结构
+pages/{module}/index.less    # 样式
+```
+
+- 新建页面后**必须**在 `app.json` 的 `pages` 数组中注册
+- 页面配置优先写在 `index.json`，全局默认写在 `app.json` 的 `window` 字段
+
+## 路由与 TabBar
+
+- Tab 页（当前：`notification`、`workspace`、`my`）之间用 `wx.switchTab`
+- 普通页面用 `wx.navigateTo` / `wx.redirectTo` / `wx.navigateBack`
+- 自定义 TabBar 位于 `custom-tab-bar/`，修改 Tab 项时同步更新三处：
+  1. `app.json` → `tabBar.list`
+  2. `custom-tab-bar/index.js` → `data.list`
+  3. `custom-tab-bar/index.wxml` → `t-tab-bar-item`
+
+```js
+// ✅ Tab 页跳转
+wx.switchTab({ url: '/pages/workspace/index' });
+
+// ✅ 普通页跳转
+wx.navigateTo({ url: '/pages/my/info-edit/index' });
+
+// ❌ Tab 页不能用 navigateTo
+wx.navigateTo({ url: '/pages/my/index' });
+```
+
+## 组件
+
+- 全局组件在 `app.json` → `usingComponents` 注册（如 `t-toast`）
+- 页面/组件级组件在对应 `index.json` → `usingComponents` 注册
+- 自定义组件放 `components/`，使用 `Component({})` 定义
+- TDesign 组件按需引入，路径格式：`tdesign-miniprogram/{组件名}/{组件名}`
+
+## 模块引用
+
+使用 `app.json` 配置的路径别名，不要用相对路径跨目录引用：
+
+```js
+import request from '~/api/request';
+import useToastBehavior from '~/behaviors/useToast';
+import config from '~/config';
+```
+
+## 网络请求
+
+统一通过 `~/api/request.js` 发起请求，不要在页面中直接调用 `wx.request`：
+
+```js
+import request from '~/api/request';
+
+// GET
+const res = await request('/api/endpoint');
+
+// POST
+const res = await request('/api/endpoint', 'POST', { key: value });
+```
+
+- Token 由请求层自动从 `wx.getStorageSync('access_token')` 读取
+- 后端地址在 `config.js` 的 `baseUrl` 配置
+
+## 数据与生命周期
+
+- 页面数据定义在 `data` 中，更新用 `this.setData()`，避免直接修改 `this.data`
+- 网络请求、初始化逻辑放 `onLoad` 或 `onShow`，渲染相关放 `onReady`
+- 定时器、监听器在 `onUnload` 中清理
+- 跨页面通信用 `getApp().eventBus`（定义在 `app.js`）
+
+## 样式
+
+- 页面/组件样式用 `.less` 文件，全局样式在 `app.less`
+- 使用 `rpx` 作为主要尺寸单位
+- 页面根容器建议加 `class="page"`（全局已定义 `.page` 样式）
+- 组件样式隔离：自定义组件默认 `styleIsolation: 'apply-shared'`
+
+## 命名约定
+
+| 类型 | 规范 | 示例 |
+|------|------|------|
+| 页面目录 | 小写，语义清晰 | `notification`、`workspace` |
+| 事件处理 | `on` + 动词 | `onLoad`、`onSubmit`、`onTabChange` |
+| 自定义方法 | 驼峰 | `fetchList`、`handleSubmit` |
+| WXML 事件绑定 | `bind:` 或 `catch:` | `bind:tap="handleTap"` |
+
+## 代码质量
+
+- 提交前运行 `npm run lint`
+- 不做与需求无关的改动
+- 优先复用 `utils/`、`behaviors/`、`components/` 中已有能力
+- 新增 API 时在 `api/` 目录封装，页面层只调用封装方法

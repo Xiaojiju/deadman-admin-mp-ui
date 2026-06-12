@@ -1,0 +1,28 @@
+@import '/styles/admin.less';
+@import '/variable.less';
+
+.role-perms {
+  &__scroll {
+    height: 100vh;
+    padding: 32rpx;
+    padding-bottom: calc(160rpx + env(safe-area-inset-bottom));
+    box-sizing: border-box;
+  }
+
+  &__footer {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+    padding: 24rpx 32rpx;
+    padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
+    background: @color-bg-card;
+    border-top: 2rpx solid @color-border-light;
+    box-shadow: 0 -8rpx 24rpx @color-primary-shadow;
+  }
+}
+
+.admin-page__check-item--selectable:active {
+  background: @color-primary-shadow;
+}

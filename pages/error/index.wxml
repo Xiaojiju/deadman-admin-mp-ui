@@ -1,0 +1,18 @@
+<page-meta page-style="{{pageStyle}}" />
+<view class="page error theme-root {{themeClass}}">
+  <view class="error__body">
+    <view class="error__icon-wrap">
+      <t-icon name="{{icon}}" size="120rpx" color="{{themeColors.primary}}" />
+    </view>
+    <view class="error__title">{{title}}</view>
+    <view class="error__desc">{{description}}</view>
+    <view class="error__code" wx:if="{{showCode && code}}">错误码 {{code}}</view>
+  </view>
+
+  <view class="error__actions">
+    <button class="error__btn error__btn--primary" bind:tap="onPrimaryAction">{{primaryText}}</button>
+    <button class="error__btn error__btn--secondary" bind:tap="onSecondaryAction">{{secondaryText}}</button>
+  </view>
+
+  <t-message id="t-message" />
+</view>

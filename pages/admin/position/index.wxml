@@ -1,0 +1,48 @@
+<page-meta page-style="{{pageStyle}}" />
+<view class="page admin-page theme-root {{themeClass}}">
+  <scroll-view class="admin-page__scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="admin-page__search">
+      <t-icon name="search" size="32rpx" color="{{themeColors.textMuted}}" />
+      <input
+        class="admin-page__search-input"
+        placeholder="搜索职位名称、编码或部门..."
+        placeholder-class="admin-page__search-placeholder"
+        value="{{keyword}}"
+        bindinput="onSearchInput"
+      />
+    </view>
+
+    <view class="admin-page__loading" wx:if="{{loading}}">
+      <t-loading theme="circular" size="48rpx" inherit-color />
+    </view>
+    <view class="admin-page__card" wx:elif="{{list.length}}">
+      <view
+        class="admin-page__item"
+        wx:for="{{list}}"
+        wx:key="id"
+        bind:tap="onItemTap"
+        bind:longpress="onItemLongPress"
+        data-id="{{item.id}}"
+        data-name="{{item.positionName}}"
+      >
+        <view class="admin-page__item-row">
+          <view class="admin-page__item-main">
+            <view class="admin-page__item-head">
+              <text class="admin-page__item-title admin-page__item-title--inline">{{item.positionName}}</text>
+              
+            </view>
+            <text class="admin-page__item-code">{{item.positionCode}}·{{item.departmentName}}</text>
+          </view>
+          <view class="admin-page__item-aside">
+            <view class="admin-page__item-meta"></view>
+            <view class="admin-page__tag {{item.status === 0 ? 'admin-page__tag--disabled' : ''}}">{{item.statusText}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="admin-page__empty" wx:else>暂无职位数据</view>
+  </scroll-view>
+
+  <admin-fab visible="{{perms.create}}" bind:tap="onCreate" />
+  <t-toast id="t-toast" />
+</view>

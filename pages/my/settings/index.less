@@ -1,0 +1,74 @@
+@import '/variable.less';
+
+.settings {
+  min-height: 100vh;
+  background: @color-bg-page;
+  box-sizing: border-box;
+
+  &__body {
+    padding: 32rpx;
+    padding-bottom: 48rpx;
+  }
+
+  &__section {
+    margin-bottom: 40rpx;
+  }
+
+  &__section-title {
+    font-size: 28rpx;
+    color: @color-text-tertiary;
+    line-height: 40rpx;
+    margin-bottom: 16rpx;
+    padding-left: 8rpx;
+  }
+
+  &__card {
+    background: @color-bg-card;
+    border: 2rpx solid @color-border;
+    border-radius: 20rpx;
+    padding: 32rpx;
+
+    &--list {
+      padding: 0;
+    }
+
+    &--spaced {
+      margin-top: 24rpx;
+    }
+  }
+
+  &__hint {
+    margin-top: 20rpx;
+    font-size: 24rpx;
+    color: @color-text-tertiary;
+    line-height: 36rpx;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 32rpx;
+    border-bottom: 2rpx solid @color-border-light;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  &__item-left {
+    display: flex;
+    align-items: center;
+    gap: 20rpx;
+    font-size: 30rpx;
+    color: @color-text-primary;
+  }
+
+  &__item--danger {
+    justify-content: center;
+
+    .settings__item-left {
+      color: #e34d59;
+    }
+  }
+}

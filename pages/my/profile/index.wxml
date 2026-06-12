@@ -1,0 +1,148 @@
+<page-meta page-style="{{pageStyle}}" />
+<scroll-view class="page profile theme-root {{themeClass}}" scroll-y enhanced show-scrollbar="{{false}}">
+  <view class="profile__summary">
+    <image
+      wx:if="{{avatarDisplay}}"
+      class="profile__summary-avatar"
+      src="{{avatarDisplay}}"
+      mode="aspectFill"
+    />
+    <view wx:else class="profile__summary-avatar profile__summary-avatar--placeholder">
+      <t-icon name="user" size="72rpx" color="{{themeColors.textMuted}}" />
+    </view>
+    <view class="profile__summary-info">
+      <view class="profile__summary-name">{{nickname || '未设置昵称'}}</view>
+      <view class="profile__summary-username">{{profile.username || '-'}}</view>
+    </view>
+  </view>
+
+  <view class="profile__readonly">
+    <view class="profile__readonly-item">
+      <view class="profile__readonly-label">昵称</view>
+      <input
+        class="profile__editable-input"
+        placeholder="请输入昵称"
+        placeholder-class="profile__placeholder"
+        maxlength="64"
+        value="{{nickname}}"
+        bindinput="onNicknameInput"
+      />
+      <view class="profile__readonly-hint">在系统中显示的名称。</view>
+      <button
+        wx:if="{{canSaveNickname}}"
+        class="profile__save-btn"
+        disabled="{{savingNickname}}"
+        bind:tap="onSaveNickname"
+      >
+        <view class="btn-loading" wx:if="{{savingNickname}}">
+          <t-loading theme="circular" size="40rpx" inherit-color />
+        </view>
+        <block wx:else>保存昵称</block>
+      </button>
+    </view>
+
+    <view class="profile__readonly-item">
+      <view class="profile__readonly-label">头像</view>
+      <view class="profile__avatar-row">
+        <image
+          wx:if="{{avatarDisplay}}"
+          class="profile__avatar-preview"
+          src="{{avatarDisplay}}"
+          mode="aspectFill"
+        />
+        <view wx:else class="profile__avatar-preview profile__avatar-preview--placeholder">
+          <t-icon name="user" size="56rpx" color="{{themeColors.textMuted}}" />
+        </view>
+        <view class="profile__choose-btn" bind:tap="onChooseAvatar">
+          <t-icon name="upload" size="32rpx" color="{{themeColors.textSecondary}}" />
+          <text>选择图片</text>
+        </view>
+      </view>
+      <view class="profile__readonly-hint">
+        支持 JPG、PNG、WebP、GIF，最大 10MB。选择后可预览，确认后上传并保存。
+      </view>
+      <view class="profile__readonly-hint">您的个人头像，会显示在页面右上角等位置。</view>
+    </view>
+
+    <view class="profile__readonly-item">
+      <view class="profile__readonly-label">用户编码</view>
+      <view class="profile__readonly-value">{{profile.userCode || '-'}}</view>
+      <view class="profile__readonly-hint">系统为每位用户分配的唯一标识，用于身份识别。</view>
+    </view>
+
+    <view class="profile__readonly-item">
+      <view class="profile__readonly-label">登录用户名</view>
+      <view class="profile__readonly-value">{{profile.username || '-'}}</view>
+      <view class="profile__readonly-hint">您登录时使用的主账号名称。</view>
+    </view>
+
+    <view class="profile__readonly-item">
+      <view class="profile__readonly-label">状态</view>
+      <view class="profile__status-tag profile__status-tag--{{profile.status === 1 ? 'active' : 'inactive'}}">
+        {{statusText}}
+      </view>
+    </view>
+
+    <view class="profile__readonly-item" wx:if="{{createTimeText}}">
+      <view class="profile__readonly-label">创建时间</view>
+      <view class="profile__readonly-value profile__readonly-value--normal">{{createTimeText}}</view>
+    </view>
+
+    <view class="profile__readonly-item" wx:if="{{accounts.length}}">
+      <view class="profile__readonly-label">已绑定账号</view>
+      <view class="profile__table">
+        <view class="profile__table-head">
+          <text class="profile__table-col profile__table-col--type">类型</text>
+          <text class="profile__table-col">账号</text>
+          <text class="profile__table-col">登录平台</text>
+          <text class="profile__table-col profile__table-col--status">状态</text>
+        </view>
+        <view class="profile__table-row" wx:for="{{accounts}}" wx:key="accountIdentifier">
+          <view class="profile__table-col profile__table-col--type">
+            <text class="profile__type-tag">{{item.accountTypeText}}</text>
+          </view>
+          <text class="profile__table-col profile__table-cell">{{item.accountIdentifier}}</text>
+          <text class="profile__table-col profile__table-cell">{{item.platformText}}</text>
+          <view class="profile__table-col profile__table-col--status">
+            <view class="profile__status-tag profile__status-tag--{{item.status === 1 ? 'active' : 'inactive'}} profile__status-tag--sm">
+              {{item.statusText}}
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="profile__readonly-item" wx:if="{{roles.length}}">
+      <view class="profile__readonly-label">角色</view>
+      <view class="profile__roles">
+        <text class="profile__role-tag" wx:for="{{roles}}" wx:key="*this">{{item}}</text>
+      </view>
+      <view class="profile__readonly-hint">您在本系统中的身份，决定可以使用哪些功能。</view>
+    </view>
+  </view>
+
+  <view class="profile__preview-mask" wx:if="{{showAvatarPreview}}" catch:touchmove="true">
+    <view class="profile__preview-card">
+      <view class="profile__preview-title">头像预览</view>
+      <image class="profile__preview-image" src="{{avatarPreviewLocal}}" mode="aspectFill" />
+      <view class="profile__preview-actions">
+        <button class="profile__preview-btn profile__preview-btn--cancel" bind:tap="onCancelAvatarPreview">
+          取消
+        </button>
+        <button
+          class="profile__preview-btn profile__preview-btn--confirm"
+          disabled="{{uploading}}"
+          bind:tap="onConfirmAvatarUpload"
+        >
+          <view class="btn-loading" wx:if="{{uploading}}">
+            <t-loading theme="circular" size="40rpx" inherit-color />
+          </view>
+          <block wx:else>确定上传</block>
+        </button>
+      </view>
+    </view>
+  </view>
+
+  <t-message id="t-message" />
+  <t-toast id="t-toast" />
+</scroll-view>

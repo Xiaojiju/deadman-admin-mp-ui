@@ -1,0 +1,193 @@
+<page-meta page-style="{{pageStyle}}" />
+<view class="page compose theme-root {{themeClass}}">
+  <scroll-view class="compose__scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="compose__intro">
+      <view class="compose__intro-title">发送站内信</view>
+      <view class="compose__intro-desc">向指定用户、部门、职位或全体用户发送通知。</view>
+    </view>
+
+    <view class="compose__form">
+      <view class="compose__field">
+        <view class="compose__label">标题</view>
+        <input
+          class="compose__input"
+          placeholder="请输入标题"
+          placeholder-class="compose__placeholder"
+          value="{{title}}"
+          bindinput="onTitleInput"
+          maxlength="128"
+        />
+      </view>
+
+      <view class="compose__field compose__field--textarea">
+        <view class="compose__label">正文</view>
+        <textarea
+          class="compose__textarea"
+          placeholder="请输入站内信内容"
+          placeholder-class="compose__placeholder"
+          value="{{content}}"
+          bindinput="onContentInput"
+          maxlength="2000"
+          auto-height
+        />
+      </view>
+
+      <view class="compose__field">
+        <view class="compose__label">发送范围</view>
+        <view class="compose__select" bind:tap="onToggleScope">
+          <text class="compose__select-text">{{scopeLabel}}</text>
+          <t-icon name="chevron-down" size="36rpx" color="{{themeColors.textMuted}}" />
+        </view>
+        <view class="compose__scope-panel" wx:if="{{scopeOpen}}">
+          <view
+            class="compose__scope-item {{targetType === item.value ? 'compose__scope-item--active' : ''}}"
+            wx:for="{{scopeOptions}}"
+            wx:key="value"
+            bind:tap="onScopeSelect"
+            data-value="{{item.value}}"
+          >
+            <text>{{item.label}}</text>
+            <t-icon
+              wx:if="{{targetType === item.value}}"
+              name="check"
+              size="36rpx"
+              color="{{themeColors.primary}}"
+            />
+          </view>
+        </view>
+      </view>
+
+      <view class="compose__field compose__field--target" wx:if="{{showTargetPanel}}">
+        <view class="compose__label">{{targetLabel}}</view>
+
+        <view class="compose__tags" wx:if="{{targetType === 1 && selectedUsers.length}}">
+          <view class="compose__tag" wx:for="{{selectedUsers}}" wx:key="id">
+            <image
+              wx:if="{{item.avatar}}"
+              class="compose__tag-avatar"
+              src="{{item.avatar}}"
+              mode="aspectFill"
+            />
+            <view wx:else class="compose__tag-avatar compose__tag-avatar--placeholder">
+              <t-icon name="user" size="24rpx" color="{{themeColors.textMuted}}" />
+            </view>
+            <text class="compose__tag-name">{{item.nickname}}</text>
+            <view class="compose__tag-remove" catch:tap="onRemoveUser" data-id="{{item.id}}">
+              <t-icon name="close" size="28rpx" color="{{themeColors.textMuted}}" />
+            </view>
+          </view>
+        </view>
+
+        <view class="compose__search">
+          <t-icon name="search" size="32rpx" color="{{themeColors.textMuted}}" />
+          <input
+            class="compose__search-input"
+            placeholder="{{targetType === 1 ? '搜索用户...' : targetType === 2 ? '搜索部门...' : '搜索职位...'}}"
+            placeholder-class="compose__placeholder"
+            value="{{searchKeyword}}"
+            bindinput="onSearchInput"
+          />
+        </view>
+
+        <view class="compose__picker">
+          <view class="compose__picker-loading" wx:if="{{listLoading}}">
+            <t-loading theme="circular" size="40rpx" inherit-color />
+          </view>
+
+          <block wx:elif="{{targetType === 1}}">
+            <view
+              class="compose__picker-item {{item.selected ? 'compose__picker-item--active' : ''}}"
+              wx:for="{{userList}}"
+              wx:key="id"
+              bind:tap="onToggleUser"
+              data-id="{{item.id}}"
+            >
+              <image
+                wx:if="{{item.avatar}}"
+                class="compose__picker-avatar"
+                src="{{item.avatar}}"
+                mode="aspectFill"
+              />
+              <view wx:else class="compose__picker-avatar compose__picker-avatar--placeholder">
+                <t-icon name="user" size="36rpx" color="{{themeColors.textMuted}}" />
+              </view>
+              <view class="compose__picker-info">
+                <view class="compose__picker-title">{{item.displayLine}}</view>
+                <view class="compose__picker-subtitle">{{item.username}}</view>
+              </view>
+              <t-icon
+                wx:if="{{item.selected}}"
+                name="check"
+                size="36rpx"
+                color="{{themeColors.primary}}"
+              />
+            </view>
+            <view class="compose__picker-empty" wx:if="{{!userList.length}}">暂无匹配用户</view>
+          </block>
+
+          <block wx:elif="{{targetType === 2}}">
+            <view
+              class="compose__picker-item {{item.selected ? 'compose__picker-item--active' : ''}}"
+              wx:for="{{departmentList}}"
+              wx:key="id"
+              bind:tap="onToggleDepartment"
+              data-id="{{item.id}}"
+            >
+              <view class="compose__picker-info">
+                <view class="compose__picker-title">{{item.indent}}{{item.name}}</view>
+              </view>
+              <t-icon
+                wx:if="{{item.selected}}"
+                name="check"
+                size="36rpx"
+                color="{{themeColors.primary}}"
+              />
+            </view>
+            <view class="compose__picker-empty" wx:if="{{!departmentList.length}}">暂无匹配部门</view>
+          </block>
+
+          <block wx:elif="{{targetType === 3}}">
+            <view
+              class="compose__picker-item {{item.selected ? 'compose__picker-item--active' : ''}}"
+              wx:for="{{positionList}}"
+              wx:key="id"
+              bind:tap="onTogglePosition"
+              data-id="{{item.id}}"
+            >
+              <view class="compose__picker-info">
+                <view class="compose__picker-title">{{item.name}}</view>
+                <view class="compose__picker-subtitle" wx:if="{{item.code}}">{{item.code}}</view>
+              </view>
+              <t-icon
+                wx:if="{{item.selected}}"
+                name="check"
+                size="36rpx"
+                color="{{themeColors.primary}}"
+              />
+            </view>
+            <view class="compose__picker-empty" wx:if="{{!positionList.length}}">暂无匹配职位</view>
+          </block>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <view class="compose__footer">
+    <button class="compose__btn compose__btn--cancel" bind:tap="onCancel">取消</button>
+    <button
+      class="compose__btn compose__btn--submit {{canSubmit ? '' : 'compose__btn--disabled'}}"
+      disabled="{{!canSubmit || submitting}}"
+      bind:tap="onSubmit"
+    >
+      <view class="btn-loading" wx:if="{{submitting}}">
+        <t-loading theme="circular" size="40rpx" inherit-color />
+      </view>
+      <block wx:else>发送</block>
+    </button>
+  </view>
+
+  <view class="compose__mask" wx:if="{{scopeOpen}}" bind:tap="onCloseScope"></view>
+
+  <t-message id="t-message" />
+  <t-toast id="t-toast" />
+</view>

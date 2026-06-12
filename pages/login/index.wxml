@@ -1,0 +1,99 @@
+<page-meta page-style="{{pageStyle}}" />
+<view class="page login theme-root {{themeClass}}">
+  <view class="login__bg login__bg--{{loginType}}"></view>
+
+  <view class="login__body" style="padding-top: {{statusBarHeight}}px;">
+    <view class="login__header">
+      <view class="login__logo">
+        <view class="login__logo-icon login__logo-icon--{{loginType}}"></view>
+      </view>
+      <view class="login__slogan">欢迎使用，Deadman-Admin</view>
+
+      <view class="login__tabs">
+        <view
+          class="login__tab {{loginType === 'wechat' ? 'login__tab--active' : ''}}"
+          bind:tap="onTabChange"
+          data-type="wechat"
+        >
+          微信登录
+        </view>
+        <view class="login__tab-divider"></view>
+        <view
+          class="login__tab {{loginType === 'password' ? 'login__tab--active' : ''}}"
+          bind:tap="onTabChange"
+          data-type="password"
+        >
+          密码登录
+        </view>
+      </view>
+    </view>
+
+    <view class="login__form">
+      <block wx:if="{{loginType === 'password'}}">
+        <view class="login__field">
+          <input
+            class="login__input"
+            placeholder="请输入账号"
+            placeholder-class="login__placeholder"
+            value="{{account}}"
+            bindinput="onAccountInput"
+          />
+        </view>
+        <view class="login__field login__field--password">
+          <input
+            wx:if="{{showPassword}}"
+            class="login__input"
+            type="text"
+            placeholder="请输入密码"
+            placeholder-class="login__placeholder"
+            value="{{password}}"
+            bindinput="onPasswordInput"
+          />
+          <input
+            wx:else
+            class="login__input"
+            placeholder="请输入密码"
+            placeholder-class="login__placeholder"
+            password
+            value="{{password}}"
+            bindinput="onPasswordInput"
+          />
+          <view class="login__eye" catch:tap="onTogglePassword">
+            <t-icon name="{{showPassword ? 'browse' : 'browse-off'}}" size="40rpx" color="{{themeColors.textMuted}}" />
+          </view>
+        </view>
+        <view class="login__forget" bind:tap="onForgetPassword">忘记密码</view>
+      </block>
+
+      <block wx:else>
+        <view class="login__wechat-panel">
+          <t-icon name="logo-wechat-stroke" size="96rpx" color="#07c160" />
+          <view class="login__wechat-hint">授权后即可使用微信账号快速登录</view>
+        </view>
+      </block>
+
+      <button
+        class="login__submit {{loginType === 'wechat' ? 'login__submit--wechat' : ''}} {{(loginType === 'password' && !isSubmit) || loggingIn ? 'login__submit--disabled' : ''}}"
+        disabled="{{loggingIn || (loginType === 'password' && !isSubmit)}}"
+        bind:tap="onLogin"
+      >
+        <view class="btn-loading" wx:if="{{loggingIn}}">
+          <t-loading theme="circular" size="40rpx" inherit-color />
+        </view>
+        <block wx:else>{{loginType === 'wechat' ? '微信登录' : '登录'}}</block>
+      </button>
+
+      <view class="login__apply-hint">如果没有账号，请向管理员或上级领导进行申请。</view>
+    </view>
+  </view>
+
+  <view class="login__footer">
+    <text class="login__footer-text">登录代表您已同意</text>
+    <text class="login__footer-link" bind:tap="onServiceAgreement">服务协议</text>
+    <text class="login__footer-text">和</text>
+    <text class="login__footer-link" bind:tap="onPrivacyPolicy">隐私政策</text>
+  </view>
+
+  <t-message id="t-message" />
+  <t-toast id="t-toast" />
+</view>

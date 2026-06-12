@@ -1,0 +1,64 @@
+{
+  "pages": [
+    "pages/my/index",
+    "pages/login/index",
+    "pages/error/index",
+    "pages/notification/index",
+    "pages/notification/detail/index",
+    "pages/notification/compose/index",
+    "pages/workspace/index",
+    "pages/my/profile/index",
+    "pages/my/settings/index",
+    "pages/my/password/index",
+    "pages/my/permissions/index"
+  ],
+  "usingComponents": {
+    "t-toast": "tdesign-miniprogram/toast/toast",
+    "t-message": "tdesign-miniprogram/message/message",
+    "t-loading": "tdesign-miniprogram/loading/loading"
+  },
+  "subpackages": [
+    {
+      "root": "pages/admin",
+      "pages": [
+        "department/index",
+        "department/form/index",
+        "position/index",
+        "position/form/index",
+        "user/index",
+        "user/form/index",
+        "user/roles/index",
+        "role/index",
+        "role/form/index",
+        "role/permissions/index"
+      ]
+    }
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "make the fucking money",
+    "navigationBarTextStyle": "black"
+  },
+  "tabBar": {
+    "custom": true,
+    "list": [
+      {
+        "pagePath": "pages/notification/index",
+        "text": "站内信"
+      },
+      {
+        "pagePath": "pages/workspace/index",
+        "text": "工作台"
+      },
+      {
+        "pagePath": "pages/my/index",
+        "text": "我的"
+      }
+    ]
+  },
+  "resolveAlias": {
+    "~/*": "/*"
+  },
+  "sitemapLocation": "sitemap.json"
+}

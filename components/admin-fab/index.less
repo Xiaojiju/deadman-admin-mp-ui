@@ -1,0 +1,17 @@
+@import '/variable.less';
+
+.admin-fab {
+  position: fixed;
+  right: 40rpx;
+  bottom: calc(48rpx + env(safe-area-inset-bottom));
+  width: 104rpx;
+  height: 104rpx;
+  border-radius: 50%;
+  background: @color-primary;
+  color: @color-text-inverse;
+  box-shadow: 0 12rpx 32rpx @color-primary-shadow-strong;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

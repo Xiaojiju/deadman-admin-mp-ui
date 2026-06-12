@@ -1,0 +1,181 @@
+@import '/variable.less';
+
+.my {
+  position: relative;
+  min-height: 100vh;
+  background: @color-bg-page-alt;
+
+  &__bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 520rpx;
+    background: @gradient-header;
+    pointer-events: none;
+  }
+
+  &__scroll {
+    position: relative;
+    z-index: 1;
+    height: 100vh;
+    box-sizing: border-box;
+    padding-bottom: calc(120rpx + env(safe-area-inset-bottom));
+  }
+
+  &__body {
+    padding: 32rpx 32rpx 32rpx;
+  }
+
+  &__profile {
+    display: flex;
+    align-items: center;
+    margin-bottom: 48rpx;
+  }
+
+  &__avatar {
+    width: 120rpx;
+    height: 120rpx;
+    border-radius: 50%;
+    background: @gradient-primary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+    box-shadow: 0 8rpx 24rpx @color-primary-shadow-strong;
+  }
+
+  &__avatar-img {
+    width: 100%;
+    height: 100%;
+  }
+
+  &__avatar-text {
+    font-size: 44rpx;
+    font-weight: 600;
+    color: @color-text-inverse;
+  }
+
+  &__profile-info {
+    margin-left: 28rpx;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__greeting {
+    font-size: 40rpx;
+    font-weight: 600;
+    color: @color-text-primary;
+    line-height: 56rpx;
+
+    &--login {
+      color: @color-primary;
+    }
+  }
+
+  &__subtitle {
+    margin-top: 8rpx;
+    font-size: 26rpx;
+    color: @color-text-tertiary;
+    line-height: 40rpx;
+  }
+
+  &__work-info {
+    margin-top: 12rpx;
+    display: flex;
+    flex-direction: column;
+    gap: 8rpx;
+  }
+
+  &__work-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12rpx;
+    min-width: 0;
+  }
+
+  &__work-label {
+    flex-shrink: 0;
+    font-size: 24rpx;
+    color: @color-text-tertiary;
+    line-height: 36rpx;
+    width: 56rpx;
+  }
+
+  &__work-value {
+    flex: 1;
+    min-width: 0;
+    font-size: 24rpx;
+    color: @color-text-secondary;
+    line-height: 36rpx;
+    word-break: break-all;
+  }
+
+  &__role-tags {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8rpx;
+  }
+
+  &__role-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 4rpx 14rpx;
+    border-radius: 999rpx;
+    background: @color-primary-soft;
+    color: @color-primary;
+    font-size: 22rpx;
+    line-height: 32rpx;
+  }
+
+  &__card {
+    background: @color-bg-card;
+    border-radius: 24rpx;
+    padding: 32rpx;
+    margin-bottom: 24rpx;
+    box-shadow: 0 4rpx 24rpx @color-primary-shadow;
+
+    &--tools {
+      padding-bottom: 8rpx;
+    }
+
+  }
+
+  &__card-title {
+    font-size: 32rpx;
+    font-weight: 600;
+    color: @color-text-primary;
+    line-height: 48rpx;
+
+    &--block {
+      margin-bottom: 8rpx;
+    }
+  }
+
+  &__tool-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 28rpx 0;
+    border-bottom: 2rpx solid @color-divider;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  &__tool-left {
+    display: flex;
+    align-items: center;
+    gap: 24rpx;
+  }
+
+  &__tool-label {
+    font-size: 28rpx;
+    color: @color-text-secondary;
+    line-height: 44rpx;
+  }
+}
