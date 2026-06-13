@@ -1,4 +1,4 @@
-import { createRole, getRoleDetail, updateRole } from '~/api/role';
+import { createRole, getRoleDetail, updateRole } from '@admin/api/role';
 import useAuthorityBehavior, { PermissionCode } from '~/behaviors/useAuthority';
 import useThemeBehavior from '~/behaviors/useTheme';
 import useToastBehavior from '~/behaviors/useToast';

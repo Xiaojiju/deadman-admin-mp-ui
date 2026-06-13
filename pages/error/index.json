@@ -1,6 +1,8 @@
 {
   "navigationBarTitleText": "提示",
   "usingComponents": {
-    "t-icon": "tdesign-miniprogram/icon/icon"
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-loading": "tdesign-miniprogram/loading/loading",
+    "t-message": "tdesign-miniprogram/message/message"
   }
 }

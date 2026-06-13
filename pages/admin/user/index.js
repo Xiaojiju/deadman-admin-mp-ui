@@ -1,5 +1,5 @@
-import { deleteUser, fetchUserList } from '~/api/user-admin';
-import useAdminSwipeBehavior from '~/behaviors/useAdminSwipe';
+import { deleteUser, fetchUserList } from '@admin/api/user-admin';
+import useAdminSwipeBehavior from '@admin/behaviors/useAdminSwipe';
 import useAuthorityBehavior, { PermissionCode } from '~/behaviors/useAuthority';
 import useThemeBehavior from '~/behaviors/useTheme';
 import useToastBehavior from '~/behaviors/useToast';

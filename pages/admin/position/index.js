@@ -1,6 +1,6 @@
 import { deletePosition, fetchPositions } from '~/api/position';
 import { fetchDepartmentTree } from '~/api/department';
-import useAdminSwipeBehavior from '~/behaviors/useAdminSwipe';
+import useAdminSwipeBehavior from '@admin/behaviors/useAdminSwipe';
 import useAuthorityBehavior, { PermissionCode } from '~/behaviors/useAuthority';
 import useThemeBehavior from '~/behaviors/useTheme';
 import useToastBehavior from '~/behaviors/useToast';

@@ -1,15 +1,15 @@
 import { fetchDepartmentTree } from '~/api/department';
 import { fetchPositions } from '~/api/position';
-import { fetchRoleList } from '~/api/role';
+import { fetchRoleList } from '@admin/api/role';
 import {
   assignUserRoles,
   createUser,
   getUserDetail,
   resetUserPassword,
   updateUser,
-} from '~/api/user-admin';
+} from '@admin/api/user-admin';
 import useAuthorityBehavior, { PermissionCode } from '~/behaviors/useAuthority';
-import useStatusPickerBehavior from '~/behaviors/useStatusPicker';
+import useStatusPickerBehavior from '@admin/behaviors/useStatusPicker';
 import useThemeBehavior from '~/behaviors/useTheme';
 import useToastBehavior from '~/behaviors/useToast';
 import {
@@ -19,7 +19,7 @@ import {
   mapRoleListItems,
   normalizePickerId,
 } from '~/utils/admin';
-import { debounce } from '~/utils/debounce';
+import { debounce } from '@admin/utils/debounce';
 import { assertFormPerm, createFieldErrors, inputPatch, mergeValidation } from '~/utils/form-field';
 
 const EMPTY_POSITION_OPTION = { label: '无职位', value: '' };

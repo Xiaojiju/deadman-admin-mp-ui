@@ -1,5 +1,5 @@
-import { assignUserRoles, getUserDetail } from '~/api/user-admin';
-import { fetchRoleList } from '~/api/role';
+import { assignUserRoles, getUserDetail } from '@admin/api/user-admin';
+import { fetchRoleList } from '@admin/api/role';
 import useAuthorityBehavior, { PermissionCode } from '~/behaviors/useAuthority';
 import useThemeBehavior from '~/behaviors/useTheme';
 import useToastBehavior from '~/behaviors/useToast';

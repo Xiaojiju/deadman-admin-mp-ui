@@ -2,6 +2,8 @@
   "navigationBarTitleText": "设置",
   "usingComponents": {
     "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-loading": "tdesign-miniprogram/loading/loading",
+    "t-message": "tdesign-miniprogram/message/message",
     "t-toast": "tdesign-miniprogram/toast/toast",
     "theme-switch": "/components/theme-switch/index",
     "color-theme-switch": "/components/color-theme-switch/index"

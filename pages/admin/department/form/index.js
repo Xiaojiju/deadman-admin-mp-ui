@@ -5,7 +5,7 @@ import {
   updateDepartment,
 } from '~/api/department';
 import useAuthorityBehavior, { PermissionCode } from '~/behaviors/useAuthority';
-import useStatusPickerBehavior from '~/behaviors/useStatusPicker';
+import useStatusPickerBehavior from '@admin/behaviors/useStatusPicker';
 import useThemeBehavior from '~/behaviors/useTheme';
 import useToastBehavior from '~/behaviors/useToast';
 import {

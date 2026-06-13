@@ -2,6 +2,7 @@
   "navigationBarTitleText": "站内信",
   "usingComponents": {
     "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-message": "tdesign-miniprogram/message/message",
     "t-toast": "tdesign-miniprogram/toast/toast"
   }
 }

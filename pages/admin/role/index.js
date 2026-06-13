@@ -1,5 +1,5 @@
-import { deleteRole, fetchRoleList } from '~/api/role';
-import useAdminSwipeBehavior from '~/behaviors/useAdminSwipe';
+import { deleteRole, fetchRoleList } from '@admin/api/role';
+import useAdminSwipeBehavior from '@admin/behaviors/useAdminSwipe';
 import useAuthorityBehavior, { PermissionCode } from '~/behaviors/useAuthority';
 import useThemeBehavior from '~/behaviors/useTheme';
 import useToastBehavior from '~/behaviors/useToast';

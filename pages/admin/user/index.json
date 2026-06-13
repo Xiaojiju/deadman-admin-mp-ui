@@ -1,4 +1,10 @@
 {
   "navigationBarTitleText": "用户管理",
-  "usingComponents": {}
+  "usingComponents": {
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-loading": "tdesign-miniprogram/loading/loading",
+    "t-swipe-cell": "tdesign-miniprogram/swipe-cell/swipe-cell",
+    "t-toast": "tdesign-miniprogram/toast/toast",
+    "admin-fab": "/components/admin-fab/index"
+  }
 }

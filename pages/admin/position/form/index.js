@@ -1,7 +1,7 @@
 import { fetchDepartmentTree } from '~/api/department';
 import { createPosition, getPosition, updatePosition } from '~/api/position';
 import useAuthorityBehavior, { PermissionCode } from '~/behaviors/useAuthority';
-import useStatusPickerBehavior from '~/behaviors/useStatusPicker';
+import useStatusPickerBehavior from '@admin/behaviors/useStatusPicker';
 import useThemeBehavior from '~/behaviors/useTheme';
 import useToastBehavior from '~/behaviors/useToast';
 import {
