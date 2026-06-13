@@ -15,7 +15,12 @@
   "usingComponents": {
     "t-toast": "tdesign-miniprogram/toast/toast",
     "t-message": "tdesign-miniprogram/message/message",
-    "t-loading": "tdesign-miniprogram/loading/loading"
+    "t-loading": "tdesign-miniprogram/loading/loading",
+    "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-swipe-cell": "tdesign-miniprogram/swipe-cell/swipe-cell",
+    "t-picker": "tdesign-miniprogram/picker/picker",
+    "t-picker-item": "tdesign-miniprogram/picker-item/picker-item",
+    "admin-fab": "/components/admin-fab/index"
   },
   "subpackages": [
     {

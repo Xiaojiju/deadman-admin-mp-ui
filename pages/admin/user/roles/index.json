@@ -2,8 +2,6 @@
   "navigationBarTitleText": "分配角色",
   "usingComponents": {
     "t-checkbox": "tdesign-miniprogram/checkbox/checkbox",
-    "t-checkbox-group": "tdesign-miniprogram/checkbox-group/checkbox-group",
-    "t-icon": "tdesign-miniprogram/icon/icon",
-    "t-toast": "tdesign-miniprogram/toast/toast"
+    "t-checkbox-group": "tdesign-miniprogram/checkbox-group/checkbox-group"
   }
 }

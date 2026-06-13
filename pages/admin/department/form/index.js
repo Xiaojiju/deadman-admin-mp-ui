@@ -5,32 +5,30 @@ import {
   updateDepartment,
 } from '~/api/department';
 import useAuthorityBehavior, { PermissionCode } from '~/behaviors/useAuthority';
+import useStatusPickerBehavior from '~/behaviors/useStatusPicker';
 import useThemeBehavior from '~/behaviors/useTheme';
 import useToastBehavior from '~/behaviors/useToast';
-import { flattenDepartmentTree, getStatusText, normalizePickerId } from '~/utils/admin';
-import { createFieldErrors, inputPatch, mergeValidation } from '~/utils/form-field';
+import {
+  buildFlatDepartmentPickerOptions,
+  flattenDepartmentTree,
+  getStatusText,
+  normalizePickerId,
+} from '~/utils/admin';
+import { assertFormPerm, createFieldErrors, inputPatch, mergeValidation } from '~/utils/form-field';
 
 Page({
-  behaviors: [useThemeBehavior, useToastBehavior, useAuthorityBehavior],
+  behaviors: [useThemeBehavior, useToastBehavior, useAuthorityBehavior, useStatusPickerBehavior],
 
   data: {
     id: '',
     isEdit: false,
     deptCode: '',
     deptName: '',
-    status: 1,
-    statusText: '正常',
     parentPickerOptions: [],
     parentPickerValue: [''],
     parentText: '无（根部门）',
     selectedParentId: null,
     parentVisible: false,
-    statusVisible: false,
-    statusPickerValue: [1],
-    statusPickerOptions: [
-      { label: '正常', value: 1 },
-      { label: '禁用', value: 0 },
-    ],
     fieldErrors: createFieldErrors(['deptCode', 'deptName']),
     submitting: false,
   },
@@ -61,13 +59,7 @@ Page({
     const flat = flattenDepartmentTree(res.data || []).filter(
       (item) => !excludeId || String(item.id) !== String(excludeId),
     );
-    const parentPickerOptions = [
-      { label: '无（根部门）', value: '' },
-      ...flat.map((item) => ({
-        label: `${item.indent}${item.deptName}`,
-        value: item.id,
-      })),
-    ];
+    const parentPickerOptions = buildFlatDepartmentPickerOptions(flat, { emptyLabel: '无（根部门）' });
     this.setData({ parentPickerOptions });
   },
 
@@ -102,13 +94,11 @@ Page({
 
   validateForm() {
     const { isEdit, deptCode, deptName, perms } = this.data;
-
-    if (isEdit && !perms.update) {
-      this.onShowToast('#t-toast', '无编辑权限');
-      return false;
-    }
-    if (!isEdit && !perms.create) {
-      this.onShowToast('#t-toast', '无创建权限');
+    if (
+      !assertFormPerm(isEdit, perms, (msg) => {
+        this.onShowToast('#t-toast', msg);
+      })
+    ) {
       return false;
     }
 
@@ -150,25 +140,6 @@ Page({
       parentPickerValue: [parentId],
       parentText: label[0] || '无（根部门）',
       selectedParentId: parentId || null,
-    });
-  },
-
-  onOpenStatusPicker() {
-    this.setData({ statusVisible: true });
-  },
-
-  onStatusCancel() {
-    this.setData({ statusVisible: false });
-  },
-
-  onStatusConfirm(e) {
-    const status = Number(e.detail.value[0]);
-    const statusText = e.detail.label?.[0] || getStatusText(status);
-    this.setData({
-      statusVisible: false,
-      status: status === 1 ? 1 : 0,
-      statusText,
-      statusPickerValue: [status],
     });
   },
 

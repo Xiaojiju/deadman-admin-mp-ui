@@ -3,7 +3,7 @@ import useAuthorityBehavior, { PermissionCode } from '~/behaviors/useAuthority';
 import useThemeBehavior from '~/behaviors/useTheme';
 import useToastBehavior from '~/behaviors/useToast';
 import { getStatusText } from '~/utils/admin';
-import { createFieldErrors, inputPatch, mergeValidation } from '~/utils/form-field';
+import { assertFormPerm, createFieldErrors, inputPatch, mergeValidation } from '~/utils/form-field';
 
 Page({
   behaviors: [useThemeBehavior, useToastBehavior, useAuthorityBehavior],
@@ -61,13 +61,11 @@ Page({
 
   validateForm() {
     const { isEdit, roleCode, roleName, perms } = this.data;
-
-    if (isEdit && !perms.update) {
-      this.onShowToast('#t-toast', '无编辑权限');
-      return false;
-    }
-    if (!isEdit && !perms.create) {
-      this.onShowToast('#t-toast', '无创建权限');
+    if (
+      !assertFormPerm(isEdit, perms, (msg) => {
+        this.onShowToast('#t-toast', msg);
+      })
+    ) {
       return false;
     }
 

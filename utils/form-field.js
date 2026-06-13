@@ -27,7 +27,15 @@ export function mergeValidation(errors, checks) {
   return { valid, errors: next };
 }
 
-/** 清除单个字段错误 patch */
-export function clearFieldErrorPatch(field) {
-  return { [`fieldErrors.${field}`]: '' };
+/** 表单创建/编辑权限校验 */
+export function assertFormPerm(isEdit, perms, toastFn) {
+  if (isEdit && !perms.update) {
+    toastFn('无编辑权限');
+    return false;
+  }
+  if (!isEdit && !perms.create) {
+    toastFn('无创建权限');
+    return false;
+  }
+  return true;
 }

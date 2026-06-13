@@ -4,6 +4,22 @@ export function getStatusText(status) {
   return '-';
 }
 
+export const STATUS_PICKER_OPTIONS = [
+  { label: '正常', value: 1 },
+  { label: '禁用', value: 0 },
+];
+
+/** dataset 中 boolean 常为字符串 */
+export function isDatasetTruthy(value) {
+  return value === true || value === 'true';
+}
+
+/** 系统管理员用户不可删除 */
+export function isSystemAdminUser(user) {
+  if (!user) return false;
+  return !!(user.superAdmin || user.systemAdmin);
+}
+
 /** picker 选项 value 统一为字符串，避免雪花 ID 经 Number 转换丢精度 */
 export function normalizePickerId(value) {
   if (value === '' || value === null || value === undefined) return '';
@@ -98,4 +114,29 @@ export function filterByKeyword(list, keyword, fields) {
   return list.filter((item) =>
     fields.some((field) => String(item[field] || '').toLowerCase().includes(kw)),
   );
+}
+
+/** 扁平部门树 → picker 选项 */
+export function buildFlatDepartmentPickerOptions(flat, { emptyLabel, emptyValue = '' } = {}) {
+  const options = (flat || []).map((item) => ({
+    label: `${item.indent}${item.deptName}`,
+    value: item.id,
+  }));
+  if (emptyLabel !== undefined) {
+    return [{ label: emptyLabel, value: emptyValue }, ...options];
+  }
+  return options;
+}
+
+/** 角色列表项（用户表单 / 角色分配页共用） */
+export function mapRoleListItems(items, selectedIdSet) {
+  return (items || []).map((item) => ({
+    id: String(item.id),
+    roleCode: item.roleCode,
+    roleName: item.roleName,
+    description: item.description || '暂无描述',
+    status: item.status,
+    statusText: getStatusText(item.status),
+    selected: selectedIdSet ? selectedIdSet.has(String(item.id)) : false,
+  }));
 }

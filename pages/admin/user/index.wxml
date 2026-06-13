@@ -54,11 +54,12 @@
             编辑
           </view>
           <view
-            wx:if="{{perms.remove}}"
+            wx:if="{{perms.remove && !item.superAdmin}}"
             class="admin-swipe__btn admin-swipe__btn--delete"
             catch:tap="onSwipeDelete"
             data-id="{{item.id}}"
             data-name="{{item.displayName}}"
+            data-super-admin="{{item.superAdmin}}"
           >
             删除
           </view>

@@ -1,16 +1,16 @@
 import { deleteDepartment, fetchDepartmentTree } from '~/api/department';
+import useAdminSwipeBehavior from '~/behaviors/useAdminSwipe';
 import useAuthorityBehavior, { PermissionCode } from '~/behaviors/useAuthority';
 import useThemeBehavior from '~/behaviors/useTheme';
 import useToastBehavior from '~/behaviors/useToast';
 import {
   buildDepartmentSearchList,
   buildDepartmentVisibleList,
-  confirmAdminDelete,
   normalizePickerId,
 } from '~/utils/admin';
 
 Page({
-  behaviors: [useThemeBehavior, useToastBehavior, useAuthorityBehavior],
+  behaviors: [useThemeBehavior, useToastBehavior, useAuthorityBehavior, useAdminSwipeBehavior],
 
   data: {
     keyword: '',
@@ -20,6 +20,8 @@ Page({
     loading: true,
   },
 
+  searchTimer: null,
+
   async onShow() {
     await this.initAuthority();
     this.setPermFlags({
@@ -27,7 +29,19 @@ Page({
       update: PermissionCode.DEPT_UPDATE,
       remove: PermissionCode.DEPT_DELETE,
     });
+    this.setupAdminSwipe({
+      formPath: '/pages/admin/department/form/index',
+      deleteTitle: '删除部门',
+      deleteFn: deleteDepartment,
+      reloadFn() {
+        this.loadList();
+      },
+    });
     this.loadList();
+  },
+
+  onUnload() {
+    if (this.searchTimer) clearTimeout(this.searchTimer);
   },
 
   async loadList() {
@@ -35,8 +49,9 @@ Page({
     try {
       const res = await fetchDepartmentTree();
       const tree = res.data || [];
-      this.setData({ tree, expandedIds: [] });
-      this.rebuildList(tree, '', []);
+      const expandedIds = this.data.expandedIds || [];
+      this.setData({ tree });
+      this.rebuildList(tree, this.data.keyword, expandedIds);
     } catch (err) {
       this.onShowToast('#t-toast', err?.msg || '加载失败');
     } finally {
@@ -54,8 +69,11 @@ Page({
 
   onSearchInput(e) {
     const keyword = e.detail.value;
-    this.setData({ keyword });
-    this.rebuildList(this.data.tree, keyword, this.data.expandedIds);
+    if (this.searchTimer) clearTimeout(this.searchTimer);
+    this.searchTimer = setTimeout(() => {
+      this.setData({ keyword });
+      this.rebuildList(this.data.tree, keyword, this.data.expandedIds);
+    }, 300);
   },
 
   onToggleExpand(e) {
@@ -71,35 +89,5 @@ Page({
 
   onCreate() {
     wx.navigateTo({ url: '/pages/admin/department/form/index' });
-  },
-
-  onSwipeEdit(e) {
-    if (!this.data.perms.update) {
-      this.onShowToast('#t-toast', '无编辑权限');
-      return;
-    }
-    const { id } = e.currentTarget.dataset;
-    wx.navigateTo({ url: `/pages/admin/department/form/index?id=${id}` });
-  },
-
-  onSwipeDelete(e) {
-    if (!this.data.perms.remove) {
-      this.onShowToast('#t-toast', '无删除权限');
-      return;
-    }
-    const { id, name } = e.currentTarget.dataset;
-    confirmAdminDelete({
-      title: '删除部门',
-      name,
-      onConfirm: async () => {
-        try {
-          await deleteDepartment(id);
-          this.onShowToast('#t-toast', '已删除');
-          this.loadList();
-        } catch (err) {
-          this.onShowToast('#t-toast', err?.msg || '删除失败');
-        }
-      },
-    });
   },
 });

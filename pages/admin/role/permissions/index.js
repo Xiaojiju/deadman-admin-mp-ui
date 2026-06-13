@@ -71,14 +71,13 @@ Page({
     if (selected.has(code)) selected.delete(code);
     else selected.add(code);
     const selectedCodes = [...selected];
-    const groups = buildGroups(
-      this.data.groups.map((g) => ({
-        code: g.code,
-        label: g.label,
-        permissions: g.permissions.map((p) => ({ code: p.code, label: p.label })),
+    const groups = this.data.groups.map((group) => ({
+      ...group,
+      permissions: group.permissions.map((item) => ({
+        ...item,
+        selected: selected.has(item.code),
       })),
-      selectedCodes,
-    );
+    }));
     this.setData({ selectedCodes, groups });
   },
 

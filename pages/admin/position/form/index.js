@@ -1,32 +1,30 @@
 import { fetchDepartmentTree } from '~/api/department';
 import { createPosition, getPosition, updatePosition } from '~/api/position';
 import useAuthorityBehavior, { PermissionCode } from '~/behaviors/useAuthority';
+import useStatusPickerBehavior from '~/behaviors/useStatusPicker';
 import useThemeBehavior from '~/behaviors/useTheme';
 import useToastBehavior from '~/behaviors/useToast';
-import { flattenDepartmentTree, getStatusText, normalizePickerId } from '~/utils/admin';
-import { createFieldErrors, inputPatch, mergeValidation } from '~/utils/form-field';
+import {
+  buildFlatDepartmentPickerOptions,
+  flattenDepartmentTree,
+  getStatusText,
+  normalizePickerId,
+} from '~/utils/admin';
+import { assertFormPerm, createFieldErrors, inputPatch, mergeValidation } from '~/utils/form-field';
 
 Page({
-  behaviors: [useThemeBehavior, useToastBehavior, useAuthorityBehavior],
+  behaviors: [useThemeBehavior, useToastBehavior, useAuthorityBehavior, useStatusPickerBehavior],
 
   data: {
     id: '',
     isEdit: false,
     positionCode: '',
     positionName: '',
-    status: 1,
-    statusText: '正常',
     departmentPickerOptions: [],
     departmentPickerValue: [''],
     departmentText: '全局职位（不限部门）',
     selectedDepartmentId: null,
     departmentVisible: false,
-    statusVisible: false,
-    statusPickerValue: [1],
-    statusPickerOptions: [
-      { label: '正常', value: 1 },
-      { label: '禁用', value: 0 },
-    ],
     fieldErrors: createFieldErrors(['positionCode', 'positionName']),
     submitting: false,
   },
@@ -55,14 +53,11 @@ Page({
   async loadDepartmentOptions() {
     const res = await fetchDepartmentTree();
     const flat = flattenDepartmentTree(res.data || []);
-    const departmentPickerOptions = [
-      { label: '全局职位（不限部门）', value: '' },
-      ...flat.map((item) => ({
-        label: `${item.indent}${item.deptName}`,
-        value: item.id,
-      })),
-    ];
-    this.setData({ departmentPickerOptions });
+    this.setData({
+      departmentPickerOptions: buildFlatDepartmentPickerOptions(flat, {
+        emptyLabel: '全局职位（不限部门）',
+      }),
+    });
   },
 
   applyDepartmentSelection(departmentId) {
@@ -96,13 +91,11 @@ Page({
 
   validateForm() {
     const { isEdit, positionCode, positionName, perms } = this.data;
-
-    if (isEdit && !perms.update) {
-      this.onShowToast('#t-toast', '无编辑权限');
-      return false;
-    }
-    if (!isEdit && !perms.create) {
-      this.onShowToast('#t-toast', '无创建权限');
+    if (
+      !assertFormPerm(isEdit, perms, (msg) => {
+        this.onShowToast('#t-toast', msg);
+      })
+    ) {
       return false;
     }
 
@@ -146,25 +139,6 @@ Page({
       departmentPickerValue: [departmentId],
       departmentText: label[0] || '全局职位（不限部门）',
       selectedDepartmentId: departmentId || null,
-    });
-  },
-
-  onOpenStatusPicker() {
-    this.setData({ statusVisible: true });
-  },
-
-  onStatusCancel() {
-    this.setData({ statusVisible: false });
-  },
-
-  onStatusConfirm(e) {
-    const status = Number(e.detail.value[0]);
-    const statusText = e.detail.label?.[0] || getStatusText(status);
-    this.setData({
-      statusVisible: false,
-      status: status === 1 ? 1 : 0,
-      statusText,
-      statusPickerValue: [status],
     });
   },
 

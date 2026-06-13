@@ -9,16 +9,23 @@ import {
   updateUser,
 } from '~/api/user-admin';
 import useAuthorityBehavior, { PermissionCode } from '~/behaviors/useAuthority';
+import useStatusPickerBehavior from '~/behaviors/useStatusPicker';
 import useThemeBehavior from '~/behaviors/useTheme';
 import useToastBehavior from '~/behaviors/useToast';
-import { flattenDepartmentTree, getStatusText, normalizePickerId } from '~/utils/admin';
+import {
+  buildFlatDepartmentPickerOptions,
+  flattenDepartmentTree,
+  getStatusText,
+  mapRoleListItems,
+  normalizePickerId,
+} from '~/utils/admin';
 import { debounce } from '~/utils/debounce';
-import { createFieldErrors, inputPatch, mergeValidation } from '~/utils/form-field';
+import { assertFormPerm, createFieldErrors, inputPatch, mergeValidation } from '~/utils/form-field';
 
 const EMPTY_POSITION_OPTION = { label: '无职位', value: '' };
 
 Page({
-  behaviors: [useThemeBehavior, useToastBehavior, useAuthorityBehavior],
+  behaviors: [useThemeBehavior, useToastBehavior, useAuthorityBehavior, useStatusPickerBehavior],
 
   data: {
     id: '',
@@ -27,8 +34,6 @@ Page({
     password: '',
     nickname: '',
     phone: '',
-    status: 1,
-    statusText: '正常',
     departmentPickerOptions: [],
     positionPickerOptions: [EMPTY_POSITION_OPTION],
     deptPositionVisible: false,
@@ -36,12 +41,6 @@ Page({
     deptPositionText: '请选择部门与职位',
     selectedDepartmentId: null,
     selectedPositionId: null,
-    statusVisible: false,
-    statusPickerValue: [1],
-    statusPickerOptions: [
-      { label: '正常', value: 1 },
-      { label: '禁用', value: 0 },
-    ],
     roleList: [],
     selectedRoleIds: [],
     rolesText: '无',
@@ -57,7 +56,9 @@ Page({
     this._positionOptionsCache = {};
     this._pendingPickerDepartmentId = null;
     this.debouncedLoadPositionForPicker = debounce((departmentId) => {
-      this.fetchPositionOptionsForPicker(departmentId);
+      this.loadPositionPickerOptions(departmentId, {
+        pendingId: this._pendingPickerDepartmentId,
+      });
     }, 300);
 
     const authority = await this.initAuthority();
@@ -85,14 +86,9 @@ Page({
   async loadDepartmentOptions() {
     const res = await fetchDepartmentTree();
     const flat = flattenDepartmentTree(res.data || []);
-    const departmentPickerOptions = [
-      { label: '未分配部门', value: '' },
-      ...flat.map((item) => ({
-        label: `${item.indent}${item.deptName}`,
-        value: item.id,
-      })),
-    ];
-    this.setData({ departmentPickerOptions });
+    this.setData({
+      departmentPickerOptions: buildFlatDepartmentPickerOptions(flat, { emptyLabel: '未分配部门' }),
+    });
   },
 
   getPositionCacheKey(departmentId) {
@@ -107,10 +103,12 @@ Page({
     return options.length ? options : [{ label: '暂无职位', value: '' }];
   },
 
-  async loadPositionPickerOptions(departmentId, { useCache = true, showLoading = false } = {}) {
+  async loadPositionPickerOptions(departmentId, { useCache = true, showLoading = false, pendingId = null } = {}) {
     const normalizedDeptId = normalizePickerId(departmentId);
+    const isStale = () => pendingId !== null && normalizePickerId(pendingId) !== normalizedDeptId;
 
     if (!normalizedDeptId) {
+      if (isStale()) return;
       this.setData({
         positionPickerOptions: [EMPTY_POSITION_OPTION],
         positionPickerLoading: false,
@@ -120,6 +118,7 @@ Page({
 
     const cacheKey = this.getPositionCacheKey(normalizedDeptId);
     if (useCache && this._positionOptionsCache[cacheKey]) {
+      if (isStale()) return;
       this.setData({
         positionPickerOptions: this._positionOptionsCache[cacheKey],
         positionPickerLoading: false,
@@ -133,6 +132,7 @@ Page({
 
     try {
       const res = await fetchPositions(normalizedDeptId);
+      if (isStale()) return;
       const options = this.buildPositionPickerOptions(res.data);
       this._positionOptionsCache[cacheKey] = options;
       this.setData({
@@ -140,38 +140,7 @@ Page({
         positionPickerLoading: false,
       });
     } catch {
-      this.setData({
-        positionPickerOptions: [{ label: '加载失败', value: '' }],
-        positionPickerLoading: false,
-      });
-    }
-  },
-
-  async fetchPositionOptionsForPicker(departmentId) {
-    const normalizedDeptId = normalizePickerId(departmentId);
-    if (normalizePickerId(this._pendingPickerDepartmentId) !== normalizedDeptId) return;
-
-    const cacheKey = this.getPositionCacheKey(normalizedDeptId);
-    if (this._positionOptionsCache[cacheKey]) {
-      if (normalizePickerId(this._pendingPickerDepartmentId) !== normalizedDeptId) return;
-      this.setData({
-        positionPickerOptions: this._positionOptionsCache[cacheKey],
-        positionPickerLoading: false,
-      });
-      return;
-    }
-
-    try {
-      const res = await fetchPositions(normalizedDeptId);
-      const options = this.buildPositionPickerOptions(res.data);
-      this._positionOptionsCache[cacheKey] = options;
-      if (normalizePickerId(this._pendingPickerDepartmentId) !== normalizedDeptId) return;
-      this.setData({
-        positionPickerOptions: options,
-        positionPickerLoading: false,
-      });
-    } catch {
-      if (normalizePickerId(this._pendingPickerDepartmentId) !== normalizedDeptId) return;
+      if (isStale()) return;
       this.setData({
         positionPickerOptions: [{ label: '加载失败', value: '' }],
         positionPickerLoading: false,
@@ -222,18 +191,6 @@ Page({
     return `已选 ${selectedRoleIds.length} 个角色`;
   },
 
-  mapRoleListItems(items, selectedIdSet) {
-    return (items || []).map((item) => ({
-      id: String(item.id),
-      roleCode: item.roleCode,
-      roleName: item.roleName,
-      description: item.description || '暂无描述',
-      status: item.status,
-      statusText: getStatusText(item.status),
-      selected: selectedIdSet ? selectedIdSet.has(String(item.id)) : false,
-    }));
-  },
-
   async loadRoles(userId) {
     if (!this.can(PermissionCode.ROLE_USER_ASSIGN)) return;
     try {
@@ -244,7 +201,7 @@ Page({
           .filter((item) => roleCodes.includes(item.roleCode))
           .map((item) => String(item.id)),
       );
-      const roleList = this.mapRoleListItems(roleRes.data, selectedIdSet);
+      const roleList = mapRoleListItems(roleRes.data, selectedIdSet);
       const selectedRoleIds = roleList.filter((item) => item.selected).map((item) => item.id);
       this.setData({
         roleList,
@@ -278,13 +235,11 @@ Page({
 
   validateForm() {
     const { isEdit, username, password, phone, perms } = this.data;
-
-    if (isEdit && !perms.update) {
-      this.onShowToast('#t-toast', '无编辑权限');
-      return false;
-    }
-    if (!isEdit && !perms.create) {
-      this.onShowToast('#t-toast', '无创建权限');
+    if (
+      !assertFormPerm(isEdit, perms, (msg) => {
+        this.onShowToast('#t-toast', msg);
+      })
+    ) {
       return false;
     }
 
@@ -413,25 +368,6 @@ Page({
           roleList: this.data.roleList,
         });
       },
-    });
-  },
-
-  onOpenStatusPicker() {
-    this.setData({ statusVisible: true });
-  },
-
-  onStatusCancel() {
-    this.setData({ statusVisible: false });
-  },
-
-  onStatusConfirm(e) {
-    const status = Number(e.detail.value[0]);
-    const statusText = e.detail.label?.[0] || getStatusText(status);
-    this.setData({
-      statusVisible: false,
-      status: status === 1 ? 1 : 0,
-      statusText,
-      statusPickerValue: [status],
     });
   },
 

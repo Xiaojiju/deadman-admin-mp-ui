@@ -2,7 +2,6 @@
   "navigationBarTitleText": "角色",
   "usingComponents": {
     "t-input": "tdesign-miniprogram/input/input",
-    "t-textarea": "tdesign-miniprogram/textarea/textarea",
-    "t-toast": "tdesign-miniprogram/toast/toast"
+    "t-textarea": "tdesign-miniprogram/textarea/textarea"
   }
 }

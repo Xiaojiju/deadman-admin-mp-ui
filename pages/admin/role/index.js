@@ -1,11 +1,12 @@
 import { deleteRole, fetchRoleList } from '~/api/role';
+import useAdminSwipeBehavior from '~/behaviors/useAdminSwipe';
 import useAuthorityBehavior, { PermissionCode } from '~/behaviors/useAuthority';
 import useThemeBehavior from '~/behaviors/useTheme';
 import useToastBehavior from '~/behaviors/useToast';
-import { confirmAdminDelete, getStatusText } from '~/utils/admin';
+import { filterByKeyword, getStatusText, isDatasetTruthy } from '~/utils/admin';
 
 Page({
-  behaviors: [useThemeBehavior, useToastBehavior, useAuthorityBehavior],
+  behaviors: [useThemeBehavior, useToastBehavior, useAuthorityBehavior, useAdminSwipeBehavior],
 
   data: {
     keyword: '',
@@ -22,6 +23,21 @@ Page({
       remove: PermissionCode.ROLE_DELETE,
       assignPerm: PermissionCode.ROLE_PERMISSION_ASSIGN,
     });
+    this.setupAdminSwipe({
+      formPath: '/pages/admin/role/form/index',
+      deleteTitle: '删除角色',
+      deleteFn: deleteRole,
+      reloadFn() {
+        this.loadList();
+      },
+      beforeDelete({ builtin }) {
+        if (isDatasetTruthy(builtin)) {
+          this.onShowToast('#t-toast', '系统内置角色不可删除');
+          return true;
+        }
+        return false;
+      },
+    });
     this.loadList();
   },
 
@@ -34,7 +50,6 @@ Page({
         statusText: getStatusText(item.status),
         builtinText: item.systemBuiltin ? '系统内置' : '',
       }));
-      this.setData({ allList });
       this.applyFilter(this.data.keyword, allList);
     } catch (err) {
       this.onShowToast('#t-toast', err?.msg || '加载失败');
@@ -44,23 +59,20 @@ Page({
   },
 
   applyFilter(keyword, allList) {
-    const kw = (keyword || '').trim().toLowerCase();
-    const source = allList || this.data.allList;
-    const list = kw
-      ? source.filter(
-          (item) =>
-            item.roleName.toLowerCase().includes(kw) ||
-            item.roleCode.toLowerCase().includes(kw) ||
-            (item.description || '').toLowerCase().includes(kw),
-        )
-      : source;
-    this.setData({ list });
+    const list = filterByKeyword(allList || this.data.allList, keyword, [
+      'roleName',
+      'roleCode',
+      'description',
+    ]);
+    this.setData({
+      keyword: keyword ?? this.data.keyword,
+      allList: allList || this.data.allList,
+      list,
+    });
   },
 
   onSearchInput(e) {
-    const keyword = e.detail.value;
-    this.setData({ keyword });
-    this.applyFilter(keyword);
+    this.applyFilter(e.detail.value);
   },
 
   onCreate() {
@@ -70,40 +82,5 @@ Page({
   onAssignPermissions(e) {
     const { id } = e.currentTarget.dataset;
     wx.navigateTo({ url: `/pages/admin/role/permissions/index?id=${id}` });
-  },
-
-  onSwipeEdit(e) {
-    if (!this.data.perms.update) {
-      this.onShowToast('#t-toast', '无编辑权限');
-      return;
-    }
-    const { id } = e.currentTarget.dataset;
-    wx.navigateTo({ url: `/pages/admin/role/form/index?id=${id}` });
-  },
-
-  onSwipeDelete(e) {
-    const { id, name, builtin } = e.currentTarget.dataset;
-    const isBuiltin = builtin === true || builtin === 'true';
-    if (isBuiltin) {
-      this.onShowToast('#t-toast', '系统内置角色不可删除');
-      return;
-    }
-    if (!this.data.perms.remove) {
-      this.onShowToast('#t-toast', '无删除权限');
-      return;
-    }
-    confirmAdminDelete({
-      title: '删除角色',
-      name,
-      onConfirm: async () => {
-        try {
-          await deleteRole(id);
-          this.onShowToast('#t-toast', '已删除');
-          this.loadList();
-        } catch (err) {
-          this.onShowToast('#t-toast', err?.msg || '删除失败');
-        }
-      },
-    });
   },
 });

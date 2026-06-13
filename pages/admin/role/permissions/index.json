@@ -1,7 +1,4 @@
 {
   "navigationBarTitleText": "分配权限",
-  "usingComponents": {
-    "t-icon": "tdesign-miniprogram/icon/icon",
-    "t-toast": "tdesign-miniprogram/toast/toast"
-  }
+  "usingComponents": {}
 }

@@ -1,11 +1,12 @@
 import { deleteUser, fetchUserList } from '~/api/user-admin';
+import useAdminSwipeBehavior from '~/behaviors/useAdminSwipe';
 import useAuthorityBehavior, { PermissionCode } from '~/behaviors/useAuthority';
 import useThemeBehavior from '~/behaviors/useTheme';
 import useToastBehavior from '~/behaviors/useToast';
-import { confirmAdminDelete, getStatusText } from '~/utils/admin';
+import { getStatusText, isDatasetTruthy, isSystemAdminUser } from '~/utils/admin';
 
 Page({
-  behaviors: [useThemeBehavior, useToastBehavior, useAuthorityBehavior],
+  behaviors: [useThemeBehavior, useToastBehavior, useAuthorityBehavior, useAdminSwipeBehavior],
 
   data: {
     keyword: '',
@@ -19,12 +20,31 @@ Page({
 
   searchTimer: null,
 
+  onLoad() {
+    this._listGen = 0;
+  },
+
   async onShow() {
     await this.initAuthority();
     this.setPermFlags({
       create: PermissionCode.USER_CREATE,
       update: PermissionCode.USER_UPDATE,
       remove: PermissionCode.USER_DELETE,
+    });
+    this.setupAdminSwipe({
+      formPath: '/pages/admin/user/form/index',
+      deleteTitle: '删除用户',
+      deleteFn: deleteUser,
+      reloadFn() {
+        this.reloadList();
+      },
+      beforeDelete({ superAdmin }) {
+        if (isDatasetTruthy(superAdmin)) {
+          this.onShowToast('#t-toast', '系统管理员不可删除');
+          return true;
+        }
+        return false;
+      },
     });
     this.reloadList();
   },
@@ -35,8 +55,10 @@ Page({
 
   mapUserItem(item) {
     const positions = (item.positions || []).map((p) => p.name).join('、');
+    const superAdmin = isSystemAdminUser(item);
     return {
       ...item,
+      superAdmin,
       displayName: item.nickname || item.username || '未命名',
       departmentName: item.department?.name || '未分配',
       positionsText: positions || '未分配',
@@ -46,33 +68,45 @@ Page({
   },
 
   async reloadList() {
-    this.setData({ list: [], current: 1, hasMore: true, loading: true });
-    await this.loadMore();
-    this.setData({ loading: false });
+    this._listGen += 1;
+    const gen = this._listGen;
+    this.setData({ list: [], current: 1, hasMore: true, loading: true, loadingMore: false });
+    await this.loadMore(gen);
+    if (gen === this._listGen) {
+      this.setData({ loading: false });
+    }
   },
 
-  async loadMore() {
+  async loadMore(expectedGen) {
+    const gen = expectedGen ?? this._listGen;
+    if (gen !== this._listGen) return;
     if (!this.data.hasMore || this.data.loadingMore) return;
+
+    const keyword = this.data.keyword;
+    const current = this.data.current;
     this.setData({ loadingMore: true });
+
     try {
-      const res = await fetchUserList({
-        current: this.data.current,
-        size: this.data.size,
-        keyword: this.data.keyword,
-      });
+      const res = await fetchUserList({ current, size: this.data.size, keyword });
+      if (gen !== this._listGen) return;
+
       const page = res.data || {};
       const records = (page.records || []).map((item) => this.mapUserItem(item));
-      const list = this.data.current === 1 ? records : [...this.data.list, ...records];
+      const list = current === 1 ? records : [...this.data.list, ...records];
       const total = page.total ?? list.length;
       this.setData({
         list,
-        current: this.data.current + 1,
+        current: current + 1,
         hasMore: list.length < total,
       });
     } catch (err) {
-      this.onShowToast('#t-toast', err?.msg || '加载失败');
+      if (gen === this._listGen) {
+        this.onShowToast('#t-toast', err?.msg || '加载失败');
+      }
     } finally {
-      this.setData({ loadingMore: false });
+      if (gen === this._listGen) {
+        this.setData({ loadingMore: false });
+      }
     }
   },
 
@@ -84,40 +118,10 @@ Page({
   },
 
   onScrollToLower() {
-    this.loadMore();
+    this.loadMore(this._listGen);
   },
 
   onCreate() {
     wx.navigateTo({ url: '/pages/admin/user/form/index' });
-  },
-
-  onSwipeEdit(e) {
-    if (!this.data.perms.update) {
-      this.onShowToast('#t-toast', '无编辑权限');
-      return;
-    }
-    const { id } = e.currentTarget.dataset;
-    wx.navigateTo({ url: `/pages/admin/user/form/index?id=${id}` });
-  },
-
-  onSwipeDelete(e) {
-    if (!this.data.perms.remove) {
-      this.onShowToast('#t-toast', '无删除权限');
-      return;
-    }
-    const { id, name } = e.currentTarget.dataset;
-    confirmAdminDelete({
-      title: '删除用户',
-      name,
-      onConfirm: async () => {
-        try {
-          await deleteUser(id);
-          this.onShowToast('#t-toast', '已删除');
-          this.reloadList();
-        } catch (err) {
-          this.onShowToast('#t-toast', err?.msg || '删除失败');
-        }
-      },
-    });
   },
 });

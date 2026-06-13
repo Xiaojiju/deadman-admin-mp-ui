@@ -3,19 +3,7 @@ import { fetchRoleList } from '~/api/role';
 import useAuthorityBehavior, { PermissionCode } from '~/behaviors/useAuthority';
 import useThemeBehavior from '~/behaviors/useTheme';
 import useToastBehavior from '~/behaviors/useToast';
-import { getStatusText } from '~/utils/admin';
-
-function mapRoleListItems(items, selectedIdSet) {
-  return (items || []).map((item) => ({
-    id: String(item.id),
-    roleCode: item.roleCode,
-    roleName: item.roleName,
-    description: item.description || '暂无描述',
-    status: item.status,
-    statusText: getStatusText(item.status),
-    selected: selectedIdSet ? selectedIdSet.has(String(item.id)) : false,
-  }));
-}
+import { mapRoleListItems } from '~/utils/admin';
 
 Page({
   behaviors: [useThemeBehavior, useToastBehavior, useAuthorityBehavior],
@@ -70,12 +58,7 @@ Page({
 
   applyPickInit() {
     const selectedRoleIds = (this._pickInit?.selectedRoleIds || []).map(String);
-    const selectedIdSet = new Set(selectedRoleIds);
-    const roleList = (this.data.roleList || []).map((item) => ({
-      ...item,
-      selected: selectedIdSet.has(String(item.id)),
-    }));
-    this.setData({ roleList, selectedRoleIds });
+    this.setData({ selectedRoleIds });
   },
 
   async loadPickRoles() {
@@ -120,13 +103,7 @@ Page({
   },
 
   onRoleChange(e) {
-    const selectedRoleIds = (e.detail.value || []).map(String);
-    const selectedIdSet = new Set(selectedRoleIds);
-    const roleList = this.data.roleList.map((item) => ({
-      ...item,
-      selected: selectedIdSet.has(String(item.id)),
-    }));
-    this.setData({ selectedRoleIds, roleList });
+    this.setData({ selectedRoleIds: (e.detail.value || []).map(String) });
   },
 
   onSubmit() {
