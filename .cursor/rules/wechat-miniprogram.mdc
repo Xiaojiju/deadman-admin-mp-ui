@@ -1,105 +1,133 @@
 ---
-description: 微信小程序开发规范（页面结构、路由、组件、请求层、样式）
-globs: "{app.js,app.json,app.less,api/**,behaviors/**,components/**,custom-tab-bar/**,pages/**,utils/**,config.js}"
+description: 微信小程序开发规范（TDesign 优先、页面结构、分包、请求层、样式）
+globs: "{app.js,app.json,app.less,api/**,behaviors/**,components/**,constants/**,custom-tab-bar/**,pages/**,styles/**,utils/**,config.js,variable.less}"
 alwaysApply: false
 ---
 
 # 微信小程序开发规范
 
+## TDesign 组件优先（必须遵守）
+
+**编写 UI 时，必须优先使用 [TDesign Miniprogram](https://tdesign.tencent.com/miniprogram/overview) 组件，禁止用原生标签重复造轮子。**
+
+| 场景 | 使用 TDesign | 禁止 |
+|------|-------------|------|
+| 按钮 | `t-button` | 原生 `<button>` 手写样式 |
+| 输入 | `t-input` / `t-textarea` | 原生 `<input>` / `<textarea>` |
+| 列表左滑 | `t-swipe-cell` + `slot="right"` | 自研滑动容器 |
+| 加载 | `t-loading` | 手写 spinner |
+| 提示 | `t-toast` / `t-message` | `wx.showToast` 直接调用（页面层） |
+| 图标 | `t-icon` | 图片/iconfont 替代 |
+| 选择器 | `t-picker` / `t-picker-item` | 原生 `<picker>` |
+| 复选 | `t-checkbox` / `t-checkbox-group` | 自绘 checkbox |
+| 底部导航 | `t-tab-bar` / `t-tab-bar-item` | 原生 tabBar |
+| 标签 | `t-tag` | 纯 CSS 标签（admin 列表除外，沿用 `admin-page__tag`） |
+
+引入方式：
+
+```json
+// 页面 index.json → usingComponents（按需声明，禁止全局堆砌）
+{
+  "t-input": "tdesign-miniprogram/input/input",
+  "t-swipe-cell": "tdesign-miniprogram/swipe-cell/swipe-cell"
+}
+```
+
+```xml
+<!-- WXML 使用 t- 前缀组件 -->
+<t-input value="{{form.name}}" bind:change="onNameChange" />
+<t-swipe-cell>
+  <view slot="right" class="admin-swipe__actions">...</view>
+</t-swipe-cell>
+```
+
+- 全局 `app.json` 仅注册跨页高频组件：`t-toast`、`t-message`、`t-loading`
+- 其余组件在**各页面 `index.json`** 按需注册（配合 `lazyCodeLoading: requiredComponents`）
+- 新增页面前，先查 TDesign 是否有对应组件；仅在 TDesign 无法满足时才写自定义组件
+
 ## 页面结构
 
-每个页面必须包含四件套，文件名统一为 `index`：
+每个页面四件套，文件名统一 `index`：
 
 ```
-pages/{module}/index.js      # 逻辑（Page({})）
-pages/{module}/index.json    # 配置（usingComponents、navigationBarTitleText）
-pages/{module}/index.wxml    # 结构
-pages/{module}/index.less    # 样式
+pages/{module}/index.js | .json | .wxml | .less
 ```
 
-- 新建页面后**必须**在 `app.json` 的 `pages` 数组中注册
-- 页面配置优先写在 `index.json`，全局默认写在 `app.json` 的 `window` 字段
+- 主包页面注册到 `app.json` → `pages`
+- Admin 管理页注册到 `app.json` → `subpackages[0].pages`（root: `pages/admin`）
+- 页面配置写在 `index.json`，全局默认在 `app.json` → `window`
 
 ## 路由与 TabBar
 
-- Tab 页（当前：`notification`、`workspace`、`my`）之间用 `wx.switchTab`
-- 普通页面用 `wx.navigateTo` / `wx.redirectTo` / `wx.navigateBack`
-- 自定义 TabBar 位于 `custom-tab-bar/`，修改 Tab 项时同步更新三处：
-  1. `app.json` → `tabBar.list`
-  2. `custom-tab-bar/index.js` → `data.list`
-  3. `custom-tab-bar/index.wxml` → `t-tab-bar-item`
-
-```js
-// ✅ Tab 页跳转
-wx.switchTab({ url: '/pages/workspace/index' });
-
-// ✅ 普通页跳转
-wx.navigateTo({ url: '/pages/my/info-edit/index' });
-
-// ❌ Tab 页不能用 navigateTo
-wx.navigateTo({ url: '/pages/my/index' });
-```
-
-## 组件
-
-- 全局组件在 `app.json` → `usingComponents` 注册（如 `t-toast`）
-- 页面/组件级组件在对应 `index.json` → `usingComponents` 注册
-- 自定义组件放 `components/`，使用 `Component({})` 定义
-- TDesign 组件按需引入，路径格式：`tdesign-miniprogram/{组件名}/{组件名}`
+- Tab 页（`notification`、`workspace`、`my`）→ `wx.switchTab`
+- 普通页 → `wx.navigateTo` / `wx.redirectTo` / `wx.navigateBack`
+- 修改 Tab 须同步三处：`app.json` tabBar.list、`custom-tab-bar/index.js`、`custom-tab-bar/index.wxml`
 
 ## 模块引用
 
-使用 `app.json` 配置的路径别名，不要用相对路径跨目录引用：
+使用路径别名，禁止跨目录相对路径：
 
 ```js
 import request from '~/api/request';
 import useToastBehavior from '~/behaviors/useToast';
-import config from '~/config';
+import { deleteRole } from '@admin/api/role';  // 仅 admin 分包
 ```
+
+| 别名 | 指向 |
+|------|------|
+| `~/*` | 项目根目录 |
+| `@admin/*` | `pages/admin/shared/*`（分包专用，勿放主包） |
+
+## 分包与代码放置
+
+- `lazyCodeLoading: "requiredComponents"` 已启用
+- **仅被 admin 分包引用的 API / behavior / 工具** → 放 `pages/admin/shared/`，用 `@admin/*` 引用
+- 主包与分包共用能力 → 放 `api/`、`utils/`、`behaviors/` 根目录
+- 分包可引用主包；主包**不得**引用分包模块
 
 ## 网络请求
 
-统一通过 `~/api/request.js` 发起请求，不要在页面中直接调用 `wx.request`：
+统一通过 `~/api/request.js`，页面禁止直接 `wx.request`：
 
 ```js
-import request from '~/api/request';
-
-// GET
-const res = await request('/api/endpoint');
-
-// POST
-const res = await request('/api/endpoint', 'POST', { key: value });
+const res = await request('/api/endpoint', 'GET');
+const res = await request('/api/endpoint', 'POST', { key: 'value' });
 ```
 
-- Token 由请求层自动从 `wx.getStorageSync('access_token')` 读取
-- 后端地址在 `config.js` 的 `baseUrl` 配置
+- Token 由请求层从 `wx.getStorageSync('access_token')` 自动附加
+- 后端地址：`config.js` → `baseUrl`
+- 新增接口在 `api/` 或 `@admin/api/` 封装，页面只调封装方法
 
-## 数据与生命周期
+## Behaviors 与复用
 
-- 页面数据定义在 `data` 中，更新用 `this.setData()`，避免直接修改 `this.data`
-- 网络请求、初始化逻辑放 `onLoad` 或 `onShow`，渲染相关放 `onReady`
-- 定时器、监听器在 `onUnload` 中清理
-- 跨页面通信用 `getApp().eventBus`（定义在 `app.js`）
+| Behavior | 用途 |
+|----------|------|
+| `useToast` | Toast 提示 |
+| `useTheme` | 明暗主题 + CSS 变量 |
+| `useAuthority` | 权限码校验 |
+| `@admin/useAdminSwipe` | Admin 列表左滑编辑/删除 |
+| `@admin/useStatusPicker` | Admin 表单状态选择 |
+
+优先复用 `utils/`、`behaviors/`、`components/`、`styles/admin.less` 已有能力。
 
 ## 样式
 
-- 页面/组件样式用 `.less` 文件，全局样式在 `app.less`
-- 使用 `rpx` 作为主要尺寸单位
-- 页面根容器建议加 `class="page"`（全局已定义 `.page` 样式）
-- 组件样式隔离：自定义组件默认 `styleIsolation: 'apply-shared'`
+- 页面/组件用 `.less`；设计 token 见 `variable.less`、`styles/theme.less`、`styles/palettes.less`
+- 尺寸用 `rpx`；页面根容器加 `class="page theme-root {{themeClass}}"`
+- Admin 页沿用 `admin-page` BEM 类名；列表左滑按钮用 `admin-swipe__*`（定义于 `app.less`）
+- 自定义组件默认 `styleIsolation: 'apply-shared'`
 
 ## 命名约定
 
 | 类型 | 规范 | 示例 |
 |------|------|------|
-| 页面目录 | 小写，语义清晰 | `notification`、`workspace` |
-| 事件处理 | `on` + 动词 | `onLoad`、`onSubmit`、`onTabChange` |
-| 自定义方法 | 驼峰 | `fetchList`、`handleSubmit` |
-| WXML 事件绑定 | `bind:` 或 `catch:` | `bind:tap="handleTap"` |
+| 页面目录 | 小写语义化 | `notification`、`admin/user` |
+| 事件处理 | `on` + 动词 | `onSubmit`、`onSearchInput` |
+| 业务方法 | 驼峰 | `fetchList`、`loadPermissions` |
+| WXML 绑定 | `bind:` / `catch:` | `catch:tap="onSwipeDelete"` |
 
 ## 代码质量
 
 - 提交前运行 `npm run lint`
-- 不做与需求无关的改动
-- 优先复用 `utils/`、`behaviors/`、`components/` 中已有能力
-- 新增 API 时在 `api/` 目录封装，页面层只调用封装方法
+- 改动范围最小化，不做无关重构
+- Toast 走 `useToast` behavior，不要散落 `wx.showToast`

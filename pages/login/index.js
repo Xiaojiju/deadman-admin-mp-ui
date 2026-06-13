@@ -1,4 +1,9 @@
-import { loginByPassword, loginByWechatMiniprogram, saveAuthSession } from '~/api/auth';
+import {
+  bindWechatMiniprogram,
+  loginByPassword,
+  loginByWechatMiniprogram,
+  saveAuthSession,
+} from '~/api/auth';
 import { getCurrentUser } from '~/api/user';
 import useThemeBehavior from '~/behaviors/useTheme';
 import useToastBehavior from '~/behaviors/useToast';
@@ -17,6 +22,8 @@ Page({
     showPassword: false,
     fieldErrors: createFieldErrors(['account', 'password']),
     loggingIn: false,
+    wechatNeedBind: false,
+    bindToken: '',
   },
 
   onLoad() {
@@ -39,15 +46,24 @@ Page({
     return valid;
   },
 
+  resetWechatBindState() {
+    this.setData({
+      wechatNeedBind: false,
+      bindToken: '',
+      account: '',
+      password: '',
+      showPassword: false,
+      fieldErrors: createFieldErrors(['account', 'password']),
+    });
+  },
+
   onTabChange(e) {
     if (this.data.loggingIn) return;
     const { type } = e.currentTarget.dataset;
     if (type === this.data.loginType) return;
 
-    this.setData({
-      loginType: type,
-      fieldErrors: createFieldErrors(['account', 'password']),
-    });
+    this.setData({ loginType: type });
+    this.resetWechatBindState();
   },
 
   onAccountInput(e) {
@@ -90,15 +106,26 @@ Page({
     }
   },
 
+  async completeLogin(res) {
+    saveAuthSession(res.data);
+    await this.syncUserProfile(res.data || {});
+    wx.switchTab({ url: '/pages/workspace/index' });
+  },
+
   async onLogin() {
-    const { loginType, account, password, loggingIn } = this.data;
+    const { loginType, account, password, loggingIn, wechatNeedBind, bindToken } = this.data;
 
     if (loggingIn) return;
-    if (loginType === 'password' && !this.validatePasswordLogin()) return;
+    if ((loginType === 'password' || wechatNeedBind) && !this.validatePasswordLogin()) return;
 
     this.setData({ loggingIn: true });
     try {
-      let res;
+      if (loginType === 'wechat' && wechatNeedBind) {
+        const res = await bindWechatMiniprogram(bindToken, account.trim(), password);
+        await this.completeLogin(res);
+        return;
+      }
+
       if (loginType === 'wechat') {
         const loginRes = await this.wxLogin();
         if (!loginRes.code) {
@@ -106,20 +133,37 @@ Page({
           this.setData({ loggingIn: false });
           return;
         }
-        res = await loginByWechatMiniprogram(loginRes.code);
-      } else {
-        res = await loginByPassword(account.trim(), password);
+
+        const res = await loginByWechatMiniprogram(loginRes.code);
+        const authData = res.data || {};
+
+        if (authData.needBind) {
+          this.setData({
+            wechatNeedBind: true,
+            bindToken: authData.bindToken || '',
+            loggingIn: false,
+          });
+          this.onShowToast('#t-toast', '首次登录需绑定管理端账号');
+          return;
+        }
+
+        await this.completeLogin(res);
+        return;
       }
 
-      saveAuthSession(res.data);
-      await this.syncUserProfile(res.data || {});
-      wx.switchTab({ url: '/pages/workspace/index' });
+      const res = await loginByPassword(account.trim(), password);
+      await this.completeLogin(res);
     } catch (err) {
-      const message =
-        loginType === 'wechat'
-          ? err?.msg || '微信登录失败，请稍后重试'
-          : err?.msg || '登录失败，请检查账号信息';
-      this.onShowToast('#t-toast', message);
+      if (loginType === 'wechat' && wechatNeedBind && err?.code === 12032) {
+        this.resetWechatBindState();
+        this.onShowToast('#t-toast', '绑定已过期，请重新发起微信登录');
+      } else {
+        const message =
+          loginType === 'wechat'
+            ? err?.msg || '微信登录失败，请稍后重试'
+            : err?.msg || '登录失败，请检查账号信息';
+        this.onShowToast('#t-toast', message);
+      }
       this.setData({ loggingIn: false });
     }
   },

@@ -17,7 +17,17 @@ export function getCurrentUserPermissions() {
   return request('/api/auth/permissions', 'GET');
 }
 
-/** 微信小程序登录（需后端启用 wechat-miniprogram 插件） */
+/** 管理端微信小程序登录（已绑定 openid 时直接返回 JWT） */
 export function loginByWechatMiniprogram(code) {
-  return request('/api/auth/login/wechat-miniprogram', 'POST', { code }, { skipErrorRedirect: true });
+  return request('/api/auth/wechat-miniprogram', 'POST', { code }, { skipErrorRedirect: true });
+}
+
+/** 管理端微信 OAuth 绑定（openid 未绑定时，用户名密码二次认证） */
+export function bindWechatMiniprogram(bindToken, username, password) {
+  return request(
+    '/api/auth/wechat-miniprogram/bind',
+    'POST',
+    { bindToken, username, password },
+    { skipErrorRedirect: true },
+  );
 }
