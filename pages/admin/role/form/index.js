@@ -1,12 +1,13 @@
 import { createRole, getRoleDetail, updateRole } from '@admin/api/role';
 import useAuthorityBehavior, { PermissionCode } from '~/behaviors/useAuthority';
+import useStatusPickerBehavior from '@admin/behaviors/useStatusPicker';
 import useThemeBehavior from '~/behaviors/useTheme';
 import useToastBehavior from '~/behaviors/useToast';
 import { getStatusText } from '~/utils/admin';
 import { assertFormPerm, createFieldErrors, inputPatch, mergeValidation } from '~/utils/form-field';
 
 Page({
-  behaviors: [useThemeBehavior, useToastBehavior, useAuthorityBehavior],
+  behaviors: [useThemeBehavior, useToastBehavior, useAuthorityBehavior, useStatusPickerBehavior],
 
   data: {
     id: '',
@@ -14,8 +15,6 @@ Page({
     roleCode: '',
     roleName: '',
     description: '',
-    status: 1,
-    statusText: '正常',
     systemBuiltin: false,
     fieldErrors: createFieldErrors(['roleCode', 'roleName']),
     submitting: false,
@@ -52,6 +51,7 @@ Page({
         description: data.description || '',
         status: data.status ?? 1,
         statusText: getStatusText(data.status),
+        statusPickerValue: [data.status ?? 1],
         systemBuiltin: !!data.systemBuiltin,
       });
     } catch (err) {
@@ -93,11 +93,6 @@ Page({
 
   onDescriptionInput(e) {
     this.setData({ description: e.detail.value });
-  },
-
-  onStatusChange(e) {
-    const status = Number(e.detail.value) === 1 ? 0 : 1;
-    this.setData({ status, statusText: getStatusText(status) });
   },
 
   onAssignPermissions() {

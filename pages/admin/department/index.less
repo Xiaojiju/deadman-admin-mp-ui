@@ -3,9 +3,8 @@
 .dept-tree {
   &__row {
     display: flex;
-    align-items: center;
+    align-items: stretch;
     min-height: 96rpx;
-    padding-right: 24rpx;
     border-bottom: 2rpx solid @color-border-light;
 
     &:last-child {
@@ -15,6 +14,7 @@
 
   &__toggle {
     flex-shrink: 0;
+    align-self: center;
     width: 48rpx;
     height: 48rpx;
     display: flex;
@@ -30,9 +30,33 @@
   &__swipe {
     flex: 1;
     min-width: 0;
+    align-self: stretch;
+
+    .t-swipe-cell {
+      height: 100%;
+    }
+
+    .t-swipe-cell__content {
+      padding: 0;
+    }
+
+    .t-swipe-cell__right {
+      top: 0;
+      bottom: 0;
+      height: 100%;
+    }
+
+    .admin-swipe__actions {
+      height: 100%;
+    }
+
+    .admin-swipe__btn {
+      height: 100%;
+      border-radius: 0;
+    }
   }
 
   &__body {
-    padding: 24rpx 0;
+    padding: 24rpx 24rpx 24rpx 0;
   }
 }

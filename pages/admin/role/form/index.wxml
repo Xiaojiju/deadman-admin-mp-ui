@@ -48,18 +48,16 @@
 
       <view class="admin-page__field" wx:if="{{isEdit && !systemBuiltin}}">
         <view class="admin-page__label">状态</view>
-        <picker mode="selector" range="{{['正常', '禁用']}}" value="{{status === 1 ? 0 : 1}}" bindchange="onStatusChange">
-          <view class="admin-page__picker-trigger">
-            <t-input
-              layout="vertical"
-              borderless
-              readonly
-              value="{{statusText}}"
-              suffix="›"
-              t-class="admin-page__form-input"
-            />
-          </view>
-        </picker>
+        <view class="admin-page__picker-trigger" bind:tap="onOpenStatusPicker">
+          <t-input
+            layout="vertical"
+            borderless
+            readonly
+            value="{{statusText}}"
+            suffix="›"
+            t-class="admin-page__form-input"
+          />
+        </view>
       </view>
 
       <view class="admin-page__field" wx:if="{{isEdit && perms.assignPerm}}">
@@ -86,6 +84,16 @@
       <block wx:else>保存</block>
     </button>
   </view>
+
+  <t-picker
+    visible="{{statusVisible}}"
+    value="{{statusPickerValue}}"
+    title="选择状态"
+    bindconfirm="onStatusConfirm"
+    bindcancel="onStatusCancel"
+  >
+    <t-picker-item options="{{statusPickerOptions}}"></t-picker-item>
+  </t-picker>
 
   <t-toast id="t-toast" />
 </view>
