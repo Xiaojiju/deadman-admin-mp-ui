@@ -6,6 +6,7 @@ import useToastBehavior from '~/behaviors/useToast';
 import { ensureLoggedIn } from '~/utils/auth';
 import { flattenDepartments } from '~/utils/org-tree';
 import { resolveAssetUrl } from '~/utils/url';
+import { createFieldErrors, inputPatch, mergeValidation } from '~/utils/form-field';
 
 const SCOPE_OPTIONS = [
   { value: 1, label: '指定用户', targetLabel: '接收用户' },
@@ -56,7 +57,7 @@ Page({
     departmentList: [],
     positionList: [],
     listLoading: false,
-    canSubmit: false,
+    fieldErrors: createFieldErrors(['title', 'content', 'target']),
     submitting: false,
     showTargetPanel: true,
   },
@@ -74,7 +75,7 @@ Page({
     }
   },
 
-  updateSubmitState() {
+  validateForm() {
     const {
       title,
       content,
@@ -83,28 +84,35 @@ Page({
       selectedDepartmentIds,
       selectedPositionIds,
     } = this.data;
-    const hasBase = title.trim() !== '' && content.trim() !== '';
 
-    let hasTarget = true;
+    let targetOk = true;
+    let targetMessage = '';
     if (targetType === 1) {
-      hasTarget = selectedUsers.length > 0;
+      targetOk = selectedUsers.length > 0;
+      targetMessage = '请选择至少一名接收用户';
     } else if (targetType === 2) {
-      hasTarget = selectedDepartmentIds.length > 0;
+      targetOk = selectedDepartmentIds.length > 0;
+      targetMessage = '请选择至少一个接收部门';
     } else if (targetType === 3) {
-      hasTarget = selectedPositionIds.length > 0;
+      targetOk = selectedPositionIds.length > 0;
+      targetMessage = '请选择至少一个接收职位';
     }
 
-    this.setData({ canSubmit: hasBase && hasTarget });
+    const { valid, errors } = mergeValidation(this.data.fieldErrors, [
+      { field: 'title', message: '请输入标题', ok: title.trim() !== '' },
+      { field: 'content', message: '请输入正文', ok: content.trim() !== '' },
+      { field: 'target', message: targetMessage, ok: targetOk },
+    ]);
+    this.setData({ fieldErrors: errors });
+    return valid;
   },
 
   onTitleInput(e) {
-    this.setData({ title: e.detail.value });
-    this.updateSubmitState();
+    this.setData(inputPatch(this.data, 'title', e.detail.value));
   },
 
   onContentInput(e) {
-    this.setData({ content: e.detail.value });
-    this.updateSubmitState();
+    this.setData(inputPatch(this.data, 'content', e.detail.value));
   },
 
   onToggleScope() {
@@ -135,7 +143,9 @@ Page({
       selectedPositionIds: [],
     });
     this.loadTargetList();
-    this.updateSubmitState();
+    if (this.data.fieldErrors.target) {
+      this.setData({ 'fieldErrors.target': '' });
+    }
   },
 
   async loadTargetList() {
@@ -231,7 +241,9 @@ Page({
     }));
 
     this.setData({ selectedUsers, userList });
-    this.updateSubmitState();
+    if (this.data.fieldErrors.target) {
+      this.setData({ 'fieldErrors.target': '' });
+    }
   },
 
   onRemoveUser(e) {
@@ -242,7 +254,9 @@ Page({
       selected: selectedUsers.some((selected) => selected.id === item.id),
     }));
     this.setData({ selectedUsers, userList });
-    this.updateSubmitState();
+    if (this.data.fieldErrors.target) {
+      this.setData({ 'fieldErrors.target': '' });
+    }
   },
 
   onToggleDepartment(e) {
@@ -258,7 +272,9 @@ Page({
       selected: selectedDepartmentIds.includes(item.id),
     }));
     this.setData({ selectedDepartmentIds, departmentList });
-    this.updateSubmitState();
+    if (this.data.fieldErrors.target) {
+      this.setData({ 'fieldErrors.target': '' });
+    }
   },
 
   onTogglePosition(e) {
@@ -274,7 +290,9 @@ Page({
       selected: selectedPositionIds.includes(item.id),
     }));
     this.setData({ selectedPositionIds, positionList });
-    this.updateSubmitState();
+    if (this.data.fieldErrors.target) {
+      this.setData({ 'fieldErrors.target': '' });
+    }
   },
 
   onCancel() {
@@ -282,7 +300,8 @@ Page({
   },
 
   async onSubmit() {
-    if (!this.data.canSubmit || this.data.submitting) return;
+    if (this.data.submitting) return;
+    if (!this.validateForm()) return;
 
     const {
       title,

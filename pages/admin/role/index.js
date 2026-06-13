@@ -2,7 +2,7 @@ import { deleteRole, fetchRoleList } from '~/api/role';
 import useAuthorityBehavior, { PermissionCode } from '~/behaviors/useAuthority';
 import useThemeBehavior from '~/behaviors/useTheme';
 import useToastBehavior from '~/behaviors/useToast';
-import { getStatusText } from '~/utils/admin';
+import { confirmAdminDelete, getStatusText } from '~/utils/admin';
 
 Page({
   behaviors: [useThemeBehavior, useToastBehavior, useAuthorityBehavior],
@@ -67,29 +67,35 @@ Page({
     wx.navigateTo({ url: '/pages/admin/role/form/index' });
   },
 
-  onItemTap(e) {
-    const { id } = e.currentTarget.dataset;
-    wx.navigateTo({ url: `/pages/admin/role/form/index?id=${id}` });
-  },
-
   onAssignPermissions(e) {
     const { id } = e.currentTarget.dataset;
     wx.navigateTo({ url: `/pages/admin/role/permissions/index?id=${id}` });
   },
 
-  onItemLongPress(e) {
+  onSwipeEdit(e) {
+    if (!this.data.perms.update) {
+      this.onShowToast('#t-toast', '无编辑权限');
+      return;
+    }
+    const { id } = e.currentTarget.dataset;
+    wx.navigateTo({ url: `/pages/admin/role/form/index?id=${id}` });
+  },
+
+  onSwipeDelete(e) {
     const { id, name, builtin } = e.currentTarget.dataset;
-    if (builtin) {
+    const isBuiltin = builtin === true || builtin === 'true';
+    if (isBuiltin) {
       this.onShowToast('#t-toast', '系统内置角色不可删除');
       return;
     }
-    if (!this.data.perms.remove) return;
-    wx.showModal({
+    if (!this.data.perms.remove) {
+      this.onShowToast('#t-toast', '无删除权限');
+      return;
+    }
+    confirmAdminDelete({
       title: '删除角色',
-      content: `确定删除「${name}」吗？`,
-      confirmColor: '#e34d59',
-      success: async (res) => {
-        if (!res.confirm) return;
+      name,
+      onConfirm: async () => {
         try {
           await deleteRole(id);
           this.onShowToast('#t-toast', '已删除');

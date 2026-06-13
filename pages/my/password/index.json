@@ -2,6 +2,7 @@
   "navigationBarTitleText": "修改密码",
   "usingComponents": {
     "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-input": "tdesign-miniprogram/input/input",
     "t-toast": "tdesign-miniprogram/toast/toast"
   }
 }

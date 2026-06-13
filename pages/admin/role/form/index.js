@@ -3,6 +3,7 @@ import useAuthorityBehavior, { PermissionCode } from '~/behaviors/useAuthority';
 import useThemeBehavior from '~/behaviors/useTheme';
 import useToastBehavior from '~/behaviors/useToast';
 import { getStatusText } from '~/utils/admin';
+import { createFieldErrors, inputPatch, mergeValidation } from '~/utils/form-field';
 
 Page({
   behaviors: [useThemeBehavior, useToastBehavior, useAuthorityBehavior],
@@ -16,17 +17,20 @@ Page({
     status: 1,
     statusText: '正常',
     systemBuiltin: false,
-    canSubmit: false,
+    fieldErrors: createFieldErrors(['roleCode', 'roleName']),
     submitting: false,
   },
 
   async onLoad(options) {
-    await this.initAuthority();
-    this.setPermFlags({
-      create: PermissionCode.ROLE_CREATE,
-      update: PermissionCode.ROLE_UPDATE,
-      assignPerm: PermissionCode.ROLE_PERMISSION_ASSIGN,
-    });
+    const authority = await this.initAuthority();
+    this.setPermFlags(
+      {
+        create: PermissionCode.ROLE_CREATE,
+        update: PermissionCode.ROLE_UPDATE,
+        assignPerm: PermissionCode.ROLE_PERMISSION_ASSIGN,
+      },
+      authority,
+    );
 
     const id = options.id || '';
     const isEdit = !!id;
@@ -35,8 +39,6 @@ Page({
 
     if (isEdit) {
       await this.loadDetail(id);
-    } else {
-      this.updateSubmitState();
     }
   },
 
@@ -52,28 +54,43 @@ Page({
         statusText: getStatusText(data.status),
         systemBuiltin: !!data.systemBuiltin,
       });
-      this.updateSubmitState();
     } catch (err) {
       this.onShowToast('#t-toast', err?.msg || '加载失败');
     }
   },
 
-  updateSubmitState() {
+  validateForm() {
     const { isEdit, roleCode, roleName, perms } = this.data;
-    const canSubmit = isEdit
-      ? perms.update && roleName.trim() !== ''
-      : perms.create && roleCode.trim() !== '' && roleName.trim() !== '';
-    this.setData({ canSubmit });
+
+    if (isEdit && !perms.update) {
+      this.onShowToast('#t-toast', '无编辑权限');
+      return false;
+    }
+    if (!isEdit && !perms.create) {
+      this.onShowToast('#t-toast', '无创建权限');
+      return false;
+    }
+
+    const checks = [{ field: 'roleName', message: '请输入角色名称', ok: roleName.trim() !== '' }];
+    if (!isEdit) {
+      checks.unshift({
+        field: 'roleCode',
+        message: '请输入角色编码',
+        ok: roleCode.trim() !== '',
+      });
+    }
+
+    const { valid, errors } = mergeValidation(this.data.fieldErrors, checks);
+    this.setData({ fieldErrors: errors });
+    return valid;
   },
 
   onRoleCodeInput(e) {
-    this.setData({ roleCode: e.detail.value });
-    this.updateSubmitState();
+    this.setData(inputPatch(this.data, 'roleCode', e.detail.value));
   },
 
   onRoleNameInput(e) {
-    this.setData({ roleName: e.detail.value });
-    this.updateSubmitState();
+    this.setData(inputPatch(this.data, 'roleName', e.detail.value));
   },
 
   onDescriptionInput(e) {
@@ -90,7 +107,8 @@ Page({
   },
 
   async onSubmit() {
-    if (!this.data.canSubmit || this.data.submitting) return;
+    if (this.data.submitting) return;
+    if (!this.validateForm()) return;
 
     const { isEdit, id, roleCode, roleName, description, status } = this.data;
     this.setData({ submitting: true });

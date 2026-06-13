@@ -4,6 +4,7 @@ import useAuthorityBehavior, { PermissionCode } from '~/behaviors/useAuthority';
 import useThemeBehavior from '~/behaviors/useTheme';
 import useToastBehavior from '~/behaviors/useToast';
 import { flattenDepartmentTree, getStatusText, normalizePickerId } from '~/utils/admin';
+import { createFieldErrors, inputPatch, mergeValidation } from '~/utils/form-field';
 
 Page({
   behaviors: [useThemeBehavior, useToastBehavior, useAuthorityBehavior],
@@ -26,16 +27,19 @@ Page({
       { label: '正常', value: 1 },
       { label: '禁用', value: 0 },
     ],
-    canSubmit: false,
+    fieldErrors: createFieldErrors(['positionCode', 'positionName']),
     submitting: false,
   },
 
   async onLoad(options) {
-    await this.initAuthority();
-    this.setPermFlags({
-      create: PermissionCode.POSITION_CREATE,
-      update: PermissionCode.POSITION_UPDATE,
-    });
+    const authority = await this.initAuthority();
+    this.setPermFlags(
+      {
+        create: PermissionCode.POSITION_CREATE,
+        update: PermissionCode.POSITION_UPDATE,
+      },
+      authority,
+    );
 
     const id = options.id || '';
     const isEdit = !!id;
@@ -45,8 +49,6 @@ Page({
     await this.loadDepartmentOptions();
     if (isEdit) {
       await this.loadDetail(id);
-    } else {
-      this.updateSubmitState();
     }
   },
 
@@ -87,28 +89,45 @@ Page({
         statusText: getStatusText(data.status),
         statusPickerValue: [data.status ?? 1],
       });
-      this.updateSubmitState();
     } catch (err) {
       this.onShowToast('#t-toast', err?.msg || '加载失败');
     }
   },
 
-  updateSubmitState() {
+  validateForm() {
     const { isEdit, positionCode, positionName, perms } = this.data;
-    const canSubmit = isEdit
-      ? perms.update && positionName.trim() !== ''
-      : perms.create && positionCode.trim() !== '' && positionName.trim() !== '';
-    this.setData({ canSubmit });
+
+    if (isEdit && !perms.update) {
+      this.onShowToast('#t-toast', '无编辑权限');
+      return false;
+    }
+    if (!isEdit && !perms.create) {
+      this.onShowToast('#t-toast', '无创建权限');
+      return false;
+    }
+
+    const checks = [
+      { field: 'positionName', message: '请输入职位名称', ok: positionName.trim() !== '' },
+    ];
+    if (!isEdit) {
+      checks.unshift({
+        field: 'positionCode',
+        message: '请输入职位编码',
+        ok: positionCode.trim() !== '',
+      });
+    }
+
+    const { valid, errors } = mergeValidation(this.data.fieldErrors, checks);
+    this.setData({ fieldErrors: errors });
+    return valid;
   },
 
   onPositionCodeInput(e) {
-    this.setData({ positionCode: e.detail.value });
-    this.updateSubmitState();
+    this.setData(inputPatch(this.data, 'positionCode', e.detail.value));
   },
 
   onPositionNameInput(e) {
-    this.setData({ positionName: e.detail.value });
-    this.updateSubmitState();
+    this.setData(inputPatch(this.data, 'positionName', e.detail.value));
   },
 
   onOpenDepartmentPicker() {
@@ -150,7 +169,8 @@ Page({
   },
 
   async onSubmit() {
-    if (!this.data.canSubmit || this.data.submitting) return;
+    if (this.data.submitting) return;
+    if (!this.validateForm()) return;
 
     const { isEdit, id, positionCode, positionName, status, selectedDepartmentId } = this.data;
     const payload = {

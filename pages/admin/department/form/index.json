@@ -1,6 +1,7 @@
 {
   "navigationBarTitleText": "部门",
   "usingComponents": {
+    "t-input": "tdesign-miniprogram/input/input",
     "t-toast": "tdesign-miniprogram/toast/toast",
     "t-picker": "tdesign-miniprogram/picker/picker",
     "t-picker-item": "tdesign-miniprogram/picker-item/picker-item"

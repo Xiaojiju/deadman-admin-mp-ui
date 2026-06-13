@@ -16,39 +16,57 @@
       <t-loading theme="circular" size="48rpx" inherit-color />
     </view>
     <view class="admin-page__card" wx:elif="{{list.length}}">
-      <view
-        class="admin-page__item"
+      <t-swipe-cell
         wx:for="{{list}}"
         wx:key="id"
-        bind:tap="onItemTap"
-        bind:longpress="onItemLongPress"
-        data-id="{{item.id}}"
-        data-name="{{item.roleName}}"
-        data-builtin="{{item.systemBuiltin}}"
+        class="admin-page__swipe-item"
+        disabled="{{!perms.update && !perms.remove}}"
       >
-        <view class="admin-page__item-row">
-          <view class="admin-page__item-main">
-            <view class="admin-page__item-head">
-              <text class="admin-page__item-title admin-page__item-title--inline">{{item.roleName}}</text>
-              <text class="admin-page__item-code">{{item.roleCode}}</text>
+        <view class="admin-page__item admin-page__item--flat">
+          <view class="admin-page__item-row">
+            <view class="admin-page__item-main">
+              <view class="admin-page__item-head">
+                <text class="admin-page__item-title admin-page__item-title--inline">{{item.roleName}}</text>
+                <text class="admin-page__item-code">{{item.roleCode}}</text>
+              </view>
+              <view class="admin-page__item-meta" wx:if="{{item.description}}">{{item.description}}</view>
             </view>
-            <view class="admin-page__item-meta" wx:if="{{item.description}}">{{item.description}}</view>
-          </view>
-          <view class="admin-page__item-aside">
-            <view class="admin-page__tag {{item.status === 0 ? 'admin-page__tag--disabled' : ''}}">
-              {{item.statusText}}{{item.builtinText ? ' · ' + item.builtinText : ''}}
+            <view class="admin-page__item-aside">
+              <view class="admin-page__tag {{item.status === 0 ? 'admin-page__tag--disabled' : ''}}">
+                {{item.statusText}}{{item.builtinText ? ' · ' + item.builtinText : ''}}
+              </view>
+              <text
+                class="admin-page__link"
+                wx:if="{{perms.assignPerm}}"
+                catch:tap="onAssignPermissions"
+                data-id="{{item.id}}"
+              >
+                分配权限
+              </text>
             </view>
-            <text
-              class="admin-page__link"
-              wx:if="{{perms.assignPerm}}"
-              catch:tap="onAssignPermissions"
-              data-id="{{item.id}}"
-            >
-              分配权限
-            </text>
           </view>
         </view>
-      </view>
+        <view slot="right" class="admin-swipe__actions">
+          <view
+            wx:if="{{perms.update}}"
+            class="admin-swipe__btn admin-swipe__btn--edit"
+            catch:tap="onSwipeEdit"
+            data-id="{{item.id}}"
+          >
+            编辑
+          </view>
+          <view
+            wx:if="{{perms.remove && !item.systemBuiltin}}"
+            class="admin-swipe__btn admin-swipe__btn--delete"
+            catch:tap="onSwipeDelete"
+            data-id="{{item.id}}"
+            data-name="{{item.roleName}}"
+            data-builtin="{{item.systemBuiltin}}"
+          >
+            删除
+          </view>
+        </view>
+      </t-swipe-cell>
     </view>
     <view class="admin-page__empty" wx:else>暂无角色数据</view>
   </scroll-view>

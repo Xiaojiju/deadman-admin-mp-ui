@@ -24,7 +24,6 @@ Page({
     roleName: '',
     groups: [],
     selectedCodes: [],
-    canSubmit: false,
     submitting: false,
     loading: true,
   },
@@ -58,7 +57,6 @@ Page({
         roleName: role.roleName || role.roleCode || '',
         groups,
         selectedCodes,
-        canSubmit: true,
       });
     } catch (err) {
       this.onShowToast('#t-toast', err?.msg || '加载失败');
@@ -85,7 +83,7 @@ Page({
   },
 
   async onSubmit() {
-    if (!this.data.canSubmit || this.data.submitting) return;
+    if (this.data.submitting) return;
     const { roleId, selectedCodes } = this.data;
     this.setData({ submitting: true });
     try {

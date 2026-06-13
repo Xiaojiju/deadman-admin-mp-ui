@@ -8,72 +8,101 @@
       </view>
       <view class="admin-page__field" wx:else>
         <view class="admin-page__label">用户名</view>
-        <input
-          class="admin-page__input"
+        <t-input
+          layout="vertical"
+          borderless
           placeholder="登录用户名"
-          placeholder-class="admin-page__placeholder"
           value="{{username}}"
-          bindinput="onUsernameInput"
+          status="{{fieldErrors.username ? 'error' : 'default'}}"
+          tips="{{fieldErrors.username}}"
+          t-class="admin-page__form-input"
+          bind:change="onUsernameInput"
         />
       </view>
 
       <view class="admin-page__field" wx:if="{{!isEdit}}">
         <view class="admin-page__label">初始密码</view>
-        <input
-          class="admin-page__input"
-          password
+        <t-input
+          layout="vertical"
+          borderless
+          type="password"
           placeholder="至少 8 位"
-          placeholder-class="admin-page__placeholder"
           value="{{password}}"
-          bindinput="onPasswordInput"
+          status="{{fieldErrors.password ? 'error' : 'default'}}"
+          tips="{{fieldErrors.password}}"
+          t-class="admin-page__form-input"
+          bind:change="onPasswordInput"
         />
       </view>
 
       <view class="admin-page__field">
         <view class="admin-page__label">昵称</view>
-        <input
-          class="admin-page__input"
+        <t-input
+          layout="vertical"
+          borderless
           placeholder="显示名称"
-          placeholder-class="admin-page__placeholder"
           value="{{nickname}}"
-          bindinput="onNicknameInput"
+          t-class="admin-page__form-input"
+          bind:change="onNicknameInput"
         />
       </view>
 
       <view class="admin-page__field">
         <view class="admin-page__label">手机号</view>
-        <input
-          class="admin-page__input"
+        <t-input
+          layout="vertical"
+          borderless
           type="number"
           maxlength="11"
           placeholder="可选"
-          placeholder-class="admin-page__placeholder"
           value="{{phone}}"
-          bindinput="onPhoneInput"
+          status="{{fieldErrors.phone ? 'error' : 'default'}}"
+          tips="{{fieldErrors.phone}}"
+          t-class="admin-page__form-input"
+          bind:change="onPhoneInput"
         />
       </view>
 
       <view class="admin-page__field">
         <view class="admin-page__label">部门 / 职位</view>
-        <view class="admin-page__picker" bind:tap="onOpenDeptPositionPicker">
-          <text>{{deptPositionText}}</text>
-          <text>›</text>
+        <view class="admin-page__picker-trigger" bind:tap="onOpenDeptPositionPicker">
+          <t-input
+            layout="vertical"
+            borderless
+            readonly
+            value="{{deptPositionText}}"
+            placeholder="请选择部门与职位"
+            suffix="›"
+            t-class="admin-page__form-input"
+          />
         </view>
       </view>
 
       <view class="admin-page__field" wx:if="{{perms.assignRoles}}">
         <view class="admin-page__label">角色</view>
-        <view class="admin-page__picker" bind:tap="onOpenRolePicker">
-          <text>{{rolesText}}</text>
-          <text>›</text>
+        <view class="admin-page__picker-trigger" bind:tap="onOpenRolePicker">
+          <t-input
+            layout="vertical"
+            borderless
+            readonly
+            value="{{rolesText}}"
+            suffix="›"
+            t-class="admin-page__form-input"
+          />
         </view>
       </view>
 
       <view class="admin-page__field" wx:if="{{isEdit}}">
         <view class="admin-page__label">状态</view>
-        <view class="admin-page__picker" bind:tap="onOpenStatusPicker">
-          <text>{{statusText}}</text>
-          <text>›</text>
+        <view class="admin-page__picker-trigger" bind:tap="onOpenStatusPicker">
+          <t-input
+            layout="vertical"
+            borderless
+            readonly
+            value="{{statusText}}"
+            suffix="›"
+            t-class="admin-page__form-input"
+          />
         </view>
       </view>
     </view>
@@ -81,18 +110,27 @@
     <view class="admin-page__form" wx:if="{{isEdit && perms.resetPassword}}">
       <view class="admin-page__field">
         <view class="admin-page__label">重置密码</view>
-        <view class="admin-page__picker" bind:tap="onToggleResetPanel">
-          <text>{{showResetPanel ? '收起' : '设置新密码'}}</text>
-          <text>›</text>
+        <view class="admin-page__picker-trigger" bind:tap="onToggleResetPanel">
+          <t-input
+            layout="vertical"
+            borderless
+            readonly
+            value="{{showResetPanel ? '收起' : '设置新密码'}}"
+            suffix="›"
+            t-class="admin-page__form-input"
+          />
         </view>
         <block wx:if="{{showResetPanel}}">
-          <input
-            class="admin-page__input admin-page__input--mt"
-            password
+          <t-input
+            layout="vertical"
+            borderless
+            type="password"
             placeholder="新密码至少 8 位"
-            placeholder-class="admin-page__placeholder"
             value="{{newPassword}}"
-            bindinput="onNewPasswordInput"
+            status="{{fieldErrors.newPassword ? 'error' : 'default'}}"
+            tips="{{fieldErrors.newPassword}}"
+            t-class="admin-page__form-input admin-page__form-input--mt"
+            bind:change="onNewPasswordInput"
           />
           <button
             class="admin-page__btn admin-page__btn--danger admin-page__btn--inline"
@@ -107,20 +145,16 @@
         </block>
       </view>
     </view>
-
-    <view class="admin-page__footer">
-      <button
-        class="admin-page__btn admin-page__btn--primary {{canSubmit ? '' : 'admin-page__btn--disabled'}}"
-        disabled="{{!canSubmit || submitting}}"
-        bind:tap="onSubmit"
-      >
-        <view class="btn-loading" wx:if="{{submitting}}">
-          <t-loading theme="circular" size="40rpx" inherit-color />
-        </view>
-        <block wx:else>保存</block>
-      </button>
-    </view>
   </scroll-view>
+
+  <view class="admin-page__footer admin-page__footer--fixed">
+    <button class="admin-page__btn admin-page__btn--primary" disabled="{{submitting}}" bind:tap="onSubmit">
+      <view class="btn-loading" wx:if="{{submitting}}">
+        <t-loading theme="circular" size="40rpx" inherit-color />
+      </view>
+      <block wx:else>保存</block>
+    </button>
+  </view>
 
   <view
     class="user-form__picker-loading"

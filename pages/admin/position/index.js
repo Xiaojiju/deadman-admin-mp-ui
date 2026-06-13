@@ -3,7 +3,7 @@ import { fetchDepartmentTree } from '~/api/department';
 import useAuthorityBehavior, { PermissionCode } from '~/behaviors/useAuthority';
 import useThemeBehavior from '~/behaviors/useTheme';
 import useToastBehavior from '~/behaviors/useToast';
-import { flattenDepartmentTree, filterByKeyword, getStatusText } from '~/utils/admin';
+import { confirmAdminDelete, filterByKeyword, flattenDepartmentTree, getStatusText } from '~/utils/admin';
 
 Page({
   behaviors: [useThemeBehavior, useToastBehavior, useAuthorityBehavior],
@@ -68,20 +68,25 @@ Page({
     wx.navigateTo({ url: '/pages/admin/position/form/index' });
   },
 
-  onItemTap(e) {
+  onSwipeEdit(e) {
+    if (!this.data.perms.update) {
+      this.onShowToast('#t-toast', '无编辑权限');
+      return;
+    }
     const { id } = e.currentTarget.dataset;
     wx.navigateTo({ url: `/pages/admin/position/form/index?id=${id}` });
   },
 
-  onItemLongPress(e) {
-    if (!this.data.perms.remove) return;
+  onSwipeDelete(e) {
+    if (!this.data.perms.remove) {
+      this.onShowToast('#t-toast', '无删除权限');
+      return;
+    }
     const { id, name } = e.currentTarget.dataset;
-    wx.showModal({
+    confirmAdminDelete({
       title: '删除职位',
-      content: `确定删除「${name}」吗？`,
-      confirmColor: '#e34d59',
-      success: async (res) => {
-        if (!res.confirm) return;
+      name,
+      onConfirm: async () => {
         try {
           await deletePosition(id);
           this.onShowToast('#t-toast', '已删除');

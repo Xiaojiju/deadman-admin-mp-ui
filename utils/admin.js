@@ -25,13 +25,24 @@ function mapDepartmentRow(node, level, hasChildren, expanded) {
   };
 }
 
+export function confirmAdminDelete({ title, name, onConfirm }) {
+  wx.showModal({
+    title,
+    content: `确定删除「${name}」吗？`,
+    confirmColor: '#e34d59',
+    success: (res) => {
+      if (res.confirm) onConfirm();
+    },
+  });
+}
+
 /** 按展开状态生成可见部门行（默认仅显示根节点） */
 export function buildDepartmentVisibleList(nodes, expandedIds = [], level = 0) {
-  const expandedSet = new Set(expandedIds);
+  const expandedSet = new Set((expandedIds || []).map((id) => String(id)));
   const result = [];
   (nodes || []).forEach((node) => {
     const hasChildren = Array.isArray(node.children) && node.children.length > 0;
-    const expanded = expandedSet.has(node.id);
+    const expanded = expandedSet.has(String(node.id));
     result.push(mapDepartmentRow(node, level, hasChildren, expanded));
     if (hasChildren && expanded) {
       result.push(...buildDepartmentVisibleList(node.children, expandedIds, level + 1));

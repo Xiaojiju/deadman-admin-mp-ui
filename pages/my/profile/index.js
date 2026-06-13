@@ -5,6 +5,7 @@ import useToastBehavior from '~/behaviors/useToast';
 import { ensureLoggedIn } from '~/utils/auth';
 import { formatProfileTime } from '~/utils/format';
 import { resolveAssetUrl } from '~/utils/url';
+import { createFieldErrors, inputPatch, mergeValidation } from '~/utils/form-field';
 
 function getStatusText(status) {
   if (status === 1) return '正常';
@@ -73,7 +74,7 @@ Page({
     avatarPath: '',
     avatarDisplay: '',
     originNickname: '',
-    canSaveNickname: false,
+    fieldErrors: createFieldErrors(['nickname']),
     savingNickname: false,
     showAvatarPreview: false,
     avatarPreviewLocal: '',
@@ -99,8 +100,8 @@ Page({
       avatarPath,
       avatarDisplay: resolveAssetUrl(avatarPath),
       originNickname: nickname,
+      fieldErrors: createFieldErrors(['nickname']),
     });
-    this.updateNicknameSaveState();
   },
 
   async loadProfile() {
@@ -112,20 +113,29 @@ Page({
     }
   },
 
-  updateNicknameSaveState() {
+  validateNickname() {
     const { nickname, originNickname } = this.data;
-    this.setData({
-      canSaveNickname: nickname.trim() !== originNickname.trim() && nickname.trim() !== '',
-    });
+    const trimmed = nickname.trim();
+
+    if (trimmed === originNickname.trim()) {
+      this.onShowToast('#t-toast', '昵称未修改');
+      return false;
+    }
+
+    const { valid, errors } = mergeValidation(this.data.fieldErrors, [
+      { field: 'nickname', message: '请输入昵称', ok: trimmed !== '' },
+    ]);
+    this.setData({ fieldErrors: errors });
+    return valid;
   },
 
   onNicknameInput(e) {
-    this.setData({ nickname: e.detail.value });
-    this.updateNicknameSaveState();
+    this.setData(inputPatch(this.data, 'nickname', e.detail.value));
   },
 
   async onSaveNickname() {
-    if (!this.data.canSaveNickname || this.data.savingNickname) return;
+    if (this.data.savingNickname) return;
+    if (!this.validateNickname()) return;
 
     const nickname = this.data.nickname.trim();
     this.setData({ savingNickname: true });

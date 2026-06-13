@@ -7,7 +7,7 @@
   "packNpmRelationList": [
     {
       "packageJsonPath": "./package.json",
-      "miniprogramNpmDistDir": "./miniprogram/"
+      "miniprogramNpmDistDir": "./"
     }
   ],
   "setting": {
@@ -51,7 +51,7 @@
       "less"
     ],
     "condition": false,
-    "ignoreUploadUnusedFiles": true,
+    "ignoreUploadUnusedFiles": false,
     "compileWorklet": false,
     "localPlugins": false,
     "swc": false,

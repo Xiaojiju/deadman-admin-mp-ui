@@ -9,34 +9,44 @@
     <view class="compose__form">
       <view class="compose__field">
         <view class="compose__label">标题</view>
-        <input
-          class="compose__input"
+        <t-input
+          layout="vertical"
+          borderless
           placeholder="请输入标题"
-          placeholder-class="compose__placeholder"
           value="{{title}}"
-          bindinput="onTitleInput"
           maxlength="128"
+          status="{{fieldErrors.title ? 'error' : 'default'}}"
+          tips="{{fieldErrors.title}}"
+          t-class="compose__form-input"
+          bind:change="onTitleInput"
         />
       </view>
 
       <view class="compose__field compose__field--textarea">
         <view class="compose__label">正文</view>
-        <textarea
-          class="compose__textarea"
+        <t-textarea
           placeholder="请输入站内信内容"
-          placeholder-class="compose__placeholder"
           value="{{content}}"
-          bindinput="onContentInput"
           maxlength="2000"
-          auto-height
+          autosize
+          disableDefaultPadding
+          t-class="compose__form-input"
+          bind:change="onContentInput"
         />
+        <view class="compose__field-error" wx:if="{{fieldErrors.content}}">{{fieldErrors.content}}</view>
       </view>
 
       <view class="compose__field">
         <view class="compose__label">发送范围</view>
-        <view class="compose__select" bind:tap="onToggleScope">
-          <text class="compose__select-text">{{scopeLabel}}</text>
-          <t-icon name="chevron-down" size="36rpx" color="{{themeColors.textMuted}}" />
+        <view bind:tap="onToggleScope">
+          <t-input
+            layout="vertical"
+            borderless
+            readonly
+            value="{{scopeLabel}}"
+            suffix="›"
+            t-class="compose__form-input"
+          />
         </view>
         <view class="compose__scope-panel" wx:if="{{scopeOpen}}">
           <view
@@ -59,6 +69,9 @@
 
       <view class="compose__field compose__field--target" wx:if="{{showTargetPanel}}">
         <view class="compose__label">{{targetLabel}}</view>
+        <view class="compose__field-error compose__field-error--inline" wx:if="{{fieldErrors.target}}">
+          {{fieldErrors.target}}
+        </view>
 
         <view class="compose__tags" wx:if="{{targetType === 1 && selectedUsers.length}}">
           <view class="compose__tag" wx:for="{{selectedUsers}}" wx:key="id">
@@ -174,11 +187,7 @@
 
   <view class="compose__footer">
     <button class="compose__btn compose__btn--cancel" bind:tap="onCancel">取消</button>
-    <button
-      class="compose__btn compose__btn--submit {{canSubmit ? '' : 'compose__btn--disabled'}}"
-      disabled="{{!canSubmit || submitting}}"
-      bind:tap="onSubmit"
-    >
+    <button class="compose__btn compose__btn--submit" disabled="{{submitting}}" bind:tap="onSubmit">
       <view class="btn-loading" wx:if="{{submitting}}">
         <t-loading theme="circular" size="40rpx" inherit-color />
       </view>

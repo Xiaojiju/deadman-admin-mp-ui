@@ -4,6 +4,7 @@ import useThemeBehavior from '~/behaviors/useTheme';
 import useToastBehavior from '~/behaviors/useToast';
 import { isLoggedIn } from '~/utils/auth';
 import { getStatusBarHeight } from '~/utils/system';
+import { createFieldErrors, inputPatch, mergeValidation } from '~/utils/form-field';
 
 Page({
   behaviors: [useThemeBehavior, useToastBehavior],
@@ -14,7 +15,7 @@ Page({
     account: '',
     password: '',
     showPassword: false,
-    isSubmit: false,
+    fieldErrors: createFieldErrors(['account', 'password']),
     loggingIn: false,
   },
 
@@ -28,12 +29,14 @@ Page({
     }
   },
 
-  updateSubmitState() {
-    const { loginType, account, password } = this.data;
-    if (loginType !== 'password') return;
-
-    const isSubmit = account.trim() !== '' && password.trim() !== '';
-    this.setData({ isSubmit });
+  validatePasswordLogin() {
+    const { account, password } = this.data;
+    const { valid, errors } = mergeValidation(this.data.fieldErrors, [
+      { field: 'account', message: '请输入账号', ok: account.trim() !== '' },
+      { field: 'password', message: '请输入密码', ok: password.trim() !== '' },
+    ]);
+    this.setData({ fieldErrors: errors });
+    return valid;
   },
 
   onTabChange(e) {
@@ -43,19 +46,16 @@ Page({
 
     this.setData({
       loginType: type,
-      isSubmit: false,
+      fieldErrors: createFieldErrors(['account', 'password']),
     });
-    this.updateSubmitState();
   },
 
   onAccountInput(e) {
-    this.setData({ account: e.detail.value });
-    this.updateSubmitState();
+    this.setData(inputPatch(this.data, 'account', e.detail.value));
   },
 
   onPasswordInput(e) {
-    this.setData({ password: e.detail.value });
-    this.updateSubmitState();
+    this.setData(inputPatch(this.data, 'password', e.detail.value));
   },
 
   onTogglePassword() {
@@ -94,7 +94,7 @@ Page({
     const { loginType, account, password, loggingIn } = this.data;
 
     if (loggingIn) return;
-    if (loginType === 'password' && !this.data.isSubmit) return;
+    if (loginType === 'password' && !this.validatePasswordLogin()) return;
 
     this.setData({ loggingIn: true });
     try {

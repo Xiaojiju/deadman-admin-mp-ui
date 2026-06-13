@@ -13,6 +13,7 @@ import useThemeBehavior from '~/behaviors/useTheme';
 import useToastBehavior from '~/behaviors/useToast';
 import { flattenDepartmentTree, getStatusText, normalizePickerId } from '~/utils/admin';
 import { debounce } from '~/utils/debounce';
+import { createFieldErrors, inputPatch, mergeValidation } from '~/utils/form-field';
 
 const EMPTY_POSITION_OPTION = { label: '无职位', value: '' };
 
@@ -46,7 +47,7 @@ Page({
     rolesText: '无',
     newPassword: '',
     showResetPanel: false,
-    canSubmit: false,
+    fieldErrors: createFieldErrors(['username', 'password', 'phone', 'newPassword']),
     submitting: false,
     resetting: false,
     positionPickerLoading: false,
@@ -59,13 +60,16 @@ Page({
       this.fetchPositionOptionsForPicker(departmentId);
     }, 300);
 
-    await this.initAuthority();
-    this.setPermFlags({
-      create: PermissionCode.USER_CREATE,
-      update: PermissionCode.USER_UPDATE,
-      resetPassword: PermissionCode.USER_PASSWORD_RESET,
-      assignRoles: PermissionCode.ROLE_USER_ASSIGN,
-    });
+    const authority = await this.initAuthority();
+    this.setPermFlags(
+      {
+        create: PermissionCode.USER_CREATE,
+        update: PermissionCode.USER_UPDATE,
+        resetPassword: PermissionCode.USER_PASSWORD_RESET,
+        assignRoles: PermissionCode.ROLE_USER_ASSIGN,
+      },
+      authority,
+    );
 
     const id = options.id || '';
     const isEdit = !!id;
@@ -75,8 +79,6 @@ Page({
     await this.loadDepartmentOptions();
     if (isEdit) {
       await Promise.all([this.loadDetail(id), this.loadRoles(id)]);
-    } else {
-      this.updateSubmitState();
     }
   },
 
@@ -269,30 +271,53 @@ Page({
         statusText: getStatusText(data.status),
         statusPickerValue: [data.status ?? 1],
       });
-      this.updateSubmitState();
     } catch (err) {
       this.onShowToast('#t-toast', err?.msg || '加载失败');
     }
   },
 
-  updateSubmitState(overrides = {}) {
-    const username = overrides.username ?? this.data.username ?? '';
-    const password = overrides.password ?? this.data.password ?? '';
-    const { isEdit } = this.data;
-    const canSubmit = isEdit
-      ? this.can(PermissionCode.USER_UPDATE)
-      : this.can(PermissionCode.USER_CREATE)
-        && String(username).trim() !== ''
-        && String(password).trim().length >= 8;
-    this.setData({ ...overrides, canSubmit });
+  validateForm() {
+    const { isEdit, username, password, phone, perms } = this.data;
+
+    if (isEdit && !perms.update) {
+      this.onShowToast('#t-toast', '无编辑权限');
+      return false;
+    }
+    if (!isEdit && !perms.create) {
+      this.onShowToast('#t-toast', '无创建权限');
+      return false;
+    }
+
+    const checks = [];
+    if (!isEdit) {
+      checks.push(
+        { field: 'username', message: '请输入用户名', ok: username.trim() !== '' },
+        {
+          field: 'password',
+          message: '初始密码至少 8 位',
+          ok: password.trim().length >= 8,
+        },
+      );
+    }
+
+    const phoneValue = phone.trim();
+    if (phoneValue && !/^1\d{10}$/.test(phoneValue)) {
+      checks.push({ field: 'phone', message: '请输入正确的手机号', ok: false });
+    } else {
+      checks.push({ field: 'phone', message: '', ok: true });
+    }
+
+    const { valid, errors } = mergeValidation(this.data.fieldErrors, checks);
+    this.setData({ fieldErrors: errors });
+    return valid;
   },
 
   onUsernameInput(e) {
-    this.updateSubmitState({ username: e.detail.value });
+    this.setData(inputPatch(this.data, 'username', e.detail.value));
   },
 
   onPasswordInput(e) {
-    this.updateSubmitState({ password: e.detail.value });
+    this.setData(inputPatch(this.data, 'password', e.detail.value));
   },
 
   onNicknameInput(e) {
@@ -300,11 +325,11 @@ Page({
   },
 
   onPhoneInput(e) {
-    this.setData({ phone: e.detail.value });
+    this.setData(inputPatch(this.data, 'phone', e.detail.value));
   },
 
   onNewPasswordInput(e) {
-    this.setData({ newPassword: e.detail.value });
+    this.setData(inputPatch(this.data, 'newPassword', e.detail.value));
   },
 
   async onOpenDeptPositionPicker() {
@@ -417,10 +442,17 @@ Page({
   async onResetPassword() {
     const { id, newPassword, resetting, perms } = this.data;
     if (!perms.resetPassword || resetting) return;
-    if (newPassword.trim().length < 8) {
-      this.onShowToast('#t-toast', '新密码至少 8 位');
-      return;
-    }
+
+    const { valid, errors } = mergeValidation(this.data.fieldErrors, [
+      {
+        field: 'newPassword',
+        message: '新密码至少 8 位',
+        ok: newPassword.trim().length >= 8,
+      },
+    ]);
+    this.setData({ fieldErrors: errors });
+    if (!valid) return;
+
     this.setData({ resetting: true });
     try {
       await resetUserPassword(id, newPassword.trim());
@@ -434,7 +466,8 @@ Page({
   },
 
   async onSubmit() {
-    if (!this.data.canSubmit || this.data.submitting) return;
+    if (this.data.submitting) return;
+    if (!this.validateForm()) return;
 
     const {
       isEdit,

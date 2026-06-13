@@ -9,60 +9,74 @@
     <view class="password__form">
       <view class="password__field">
         <view class="password__label">当前密码</view>
-        <view class="password__input-wrap">
-          <input
-            class="password__input"
-            placeholder="请输入当前密码"
-            placeholder-class="password__placeholder"
-            password="{{!showOldPassword}}"
-            value="{{oldPassword}}"
-            bindinput="onOldPasswordInput"
+        <t-input
+          layout="vertical"
+          borderless
+          type="{{showOldPassword ? 'text' : 'password'}}"
+          placeholder="请输入当前密码"
+          value="{{oldPassword}}"
+          status="{{fieldErrors.oldPassword ? 'error' : 'default'}}"
+          tips="{{fieldErrors.oldPassword}}"
+          t-class="password__form-input"
+          bind:change="onOldPasswordInput"
+        >
+          <t-icon
+            slot="suffix-icon"
+            name="{{showOldPassword ? 'browse' : 'browse-off'}}"
+            size="40rpx"
+            color="{{themeColors.textMuted}}"
+            catch:tap="onToggleOldPassword"
           />
-          <view class="password__eye" bind:tap="onToggleOldPassword">
-            <t-icon name="{{showOldPassword ? 'browse' : 'browse-off'}}" size="40rpx" color="{{themeColors.textMuted}}" />
-          </view>
-        </view>
+        </t-input>
       </view>
 
       <view class="password__field">
         <view class="password__label">新密码</view>
-        <view class="password__input-wrap">
-          <input
-            class="password__input"
-            placeholder="请输入新密码（至少 8 位）"
-            placeholder-class="password__placeholder"
-            password="{{!showNewPassword}}"
-            value="{{newPassword}}"
-            bindinput="onNewPasswordInput"
+        <t-input
+          layout="vertical"
+          borderless
+          type="{{showNewPassword ? 'text' : 'password'}}"
+          placeholder="请输入新密码（至少 8 位）"
+          value="{{newPassword}}"
+          status="{{fieldErrors.newPassword ? 'error' : 'default'}}"
+          tips="{{fieldErrors.newPassword}}"
+          t-class="password__form-input"
+          bind:change="onNewPasswordInput"
+        >
+          <t-icon
+            slot="suffix-icon"
+            name="{{showNewPassword ? 'browse' : 'browse-off'}}"
+            size="40rpx"
+            color="{{themeColors.textMuted}}"
+            catch:tap="onToggleNewPassword"
           />
-          <view class="password__eye" bind:tap="onToggleNewPassword">
-            <t-icon name="{{showNewPassword ? 'browse' : 'browse-off'}}" size="40rpx" color="{{themeColors.textMuted}}" />
-          </view>
-        </view>
+        </t-input>
       </view>
 
       <view class="password__field">
         <view class="password__label">确认新密码</view>
-        <view class="password__input-wrap">
-          <input
-            class="password__input"
-            placeholder="请再次输入新密码"
-            placeholder-class="password__placeholder"
-            password="{{!showConfirmPassword}}"
-            value="{{confirmPassword}}"
-            bindinput="onConfirmPasswordInput"
+        <t-input
+          layout="vertical"
+          borderless
+          type="{{showConfirmPassword ? 'text' : 'password'}}"
+          placeholder="请再次输入新密码"
+          value="{{confirmPassword}}"
+          status="{{fieldErrors.confirmPassword ? 'error' : 'default'}}"
+          tips="{{fieldErrors.confirmPassword}}"
+          t-class="password__form-input"
+          bind:change="onConfirmPasswordInput"
+        >
+          <t-icon
+            slot="suffix-icon"
+            name="{{showConfirmPassword ? 'browse' : 'browse-off'}}"
+            size="40rpx"
+            color="{{themeColors.textMuted}}"
+            catch:tap="onToggleConfirmPassword"
           />
-          <view class="password__eye" bind:tap="onToggleConfirmPassword">
-            <t-icon name="{{showConfirmPassword ? 'browse' : 'browse-off'}}" size="40rpx" color="{{themeColors.textMuted}}" />
-          </view>
-        </view>
+        </t-input>
       </view>
 
-      <button
-        class="password__submit {{canSubmit ? '' : 'password__submit--disabled'}}"
-        disabled="{{!canSubmit || submitting}}"
-        bind:tap="onSubmit"
-      >
+      <button class="password__submit" disabled="{{submitting}}" bind:tap="onSubmit">
         <view class="btn-loading" wx:if="{{submitting}}">
           <t-loading theme="circular" size="40rpx" inherit-color />
         </view>

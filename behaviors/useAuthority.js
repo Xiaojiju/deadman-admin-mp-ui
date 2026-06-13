@@ -16,13 +16,14 @@ const useAuthorityBehavior = Behavior({
       return authority;
     },
 
-    setPermFlags(flagMap) {
-      const { authority } = this.data;
+    setPermFlags(flagMap, authority) {
+      const auth = authority ?? this.data.authority;
       const perms = {};
       Object.entries(flagMap).forEach(([key, code]) => {
-        perms[key] = hasPermission(authority, code);
+        perms[key] = hasPermission(auth, code);
       });
       this.setData({ perms });
+      return perms;
     },
 
     can(code) {

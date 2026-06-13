@@ -26,7 +26,6 @@ Page({
     userName: '',
     roleList: [],
     selectedRoleIds: [],
-    canSubmit: false,
     submitting: false,
     loading: true,
   },
@@ -76,7 +75,7 @@ Page({
       ...item,
       selected: selectedIdSet.has(String(item.id)),
     }));
-    this.setData({ roleList, selectedRoleIds, canSubmit: true });
+    this.setData({ roleList, selectedRoleIds });
   },
 
   async loadPickRoles() {
@@ -87,7 +86,7 @@ Page({
       const roleList = mapRoleListItems(res.data, selectedIdSet);
       const selectedRoleIds = roleList.filter((item) => item.selected).map((item) => item.id);
       this._rolesLoaded = true;
-      this.setData({ roleList, selectedRoleIds, canSubmit: true });
+      this.setData({ roleList, selectedRoleIds });
     } catch (err) {
       this.onShowToast('#t-toast', err?.msg || '加载失败');
     } finally {
@@ -112,7 +111,6 @@ Page({
         userName: user.nickname || user.username || '',
         roleList,
         selectedRoleIds,
-        canSubmit: true,
       });
     } catch (err) {
       this.onShowToast('#t-toast', err?.msg || '加载失败');
@@ -132,7 +130,7 @@ Page({
   },
 
   onSubmit() {
-    if (!this.data.canSubmit || this.data.submitting) return;
+    if (this.data.submitting) return;
 
     if (this.data.isPickMode) {
       const { selectedRoleIds, roleList } = this.data;

@@ -204,12 +204,34 @@
     }
   }
 
+  &__picker-trigger {
+    display: block;
+    width: 100%;
+  }
+
+  &__field-error {
+    margin-top: 8rpx;
+    font-size: 24rpx;
+    color: #e34d59;
+    line-height: 36rpx;
+  }
+
+  &__form-input {
+    padding: 0 !important;
+    --td-input-vertical-padding: 0;
+
+    &--mt {
+      margin-top: 16rpx;
+    }
+  }
+
   &__label {
     font-size: 28rpx;
     font-weight: 600;
     color: @color-text-primary;
     line-height: 44rpx;
     margin-bottom: 12rpx;
+    display: block;
   }
 
   &__input,
@@ -250,7 +272,19 @@
   &__footer {
     display: flex;
     gap: 20rpx;
-    padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
+
+    &--fixed {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 10;
+      padding: 24rpx 32rpx;
+      padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
+      background: @color-bg-card;
+      border-top: 2rpx solid @color-border-light;
+      box-shadow: 0 -8rpx 24rpx @color-primary-shadow;
+    }
   }
 
   &__btn {
@@ -319,5 +353,17 @@
     font-size: 22rpx;
     color: @color-text-muted;
     line-height: 32rpx;
+  }
+
+  &__swipe-item {
+    border-bottom: 2rpx solid @color-border-light;
+
+    .admin-page__item {
+      border-bottom: none;
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
   }
 }

@@ -26,10 +26,10 @@
     </block>
   </scroll-view>
 
-  <view class="role-perms__footer">
+  <view class="admin-page__footer admin-page__footer--fixed">
     <button
-      class="admin-page__btn admin-page__btn--primary {{canSubmit ? '' : 'admin-page__btn--disabled'}}"
-      disabled="{{!canSubmit || submitting}}"
+      class="admin-page__btn admin-page__btn--primary"
+      disabled="{{submitting}}"
       bind:tap="onSubmit"
     >
       <view class="btn-loading" wx:if="{{submitting}}">

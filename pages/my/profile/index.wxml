@@ -19,21 +19,19 @@
   <view class="profile__readonly">
     <view class="profile__readonly-item">
       <view class="profile__readonly-label">昵称</view>
-      <input
-        class="profile__editable-input"
+      <t-input
+        layout="vertical"
+        borderless
         placeholder="请输入昵称"
-        placeholder-class="profile__placeholder"
         maxlength="64"
         value="{{nickname}}"
-        bindinput="onNicknameInput"
+        status="{{fieldErrors.nickname ? 'error' : 'default'}}"
+        tips="{{fieldErrors.nickname}}"
+        t-class="profile__form-input"
+        bind:change="onNicknameInput"
       />
       <view class="profile__readonly-hint">在系统中显示的名称。</view>
-      <button
-        wx:if="{{canSaveNickname}}"
-        class="profile__save-btn"
-        disabled="{{savingNickname}}"
-        bind:tap="onSaveNickname"
-      >
+      <button class="profile__save-btn" disabled="{{savingNickname}}" bind:tap="onSaveNickname">
         <view class="btn-loading" wx:if="{{savingNickname}}">
           <t-loading theme="circular" size="40rpx" inherit-color />
         </view>

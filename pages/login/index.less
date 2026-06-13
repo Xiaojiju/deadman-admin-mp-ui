@@ -1,4 +1,5 @@
 @import '/variable.less';
+
 .login {
   position: relative;
   min-height: 100vh;
@@ -27,9 +28,14 @@
     position: relative;
     z-index: 1;
     padding: 0 64rpx;
+    min-height: 100vh;
+    box-sizing: border-box;
   }
 
   &__header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
     padding-top: 120rpx;
     margin-bottom: 64rpx;
     padding-left: 8rpx;
@@ -113,7 +119,7 @@
 
     &--active {
       color: @color-text-primary;
-      font-weight: 500;
+      font-weight: 600;
     }
   }
 
@@ -121,51 +127,47 @@
     width: 2rpx;
     height: 28rpx;
     background: @color-border-input;
+    flex-shrink: 0;
   }
 
   &__form {
     width: 100%;
   }
 
-  &__field {
-    position: relative;
-    border-bottom: 2rpx solid @color-border-input;
+  &__fields {
     margin-bottom: 8rpx;
+  }
 
-    &--password {
-      display: flex;
-      align-items: center;
+  &__field {
+    border-bottom: 2rpx solid @color-border-input;
+    padding: 8rpx 0 0;
+
+    & + & {
+      margin-top: 8rpx;
+    }
+
+    &--error {
+      border-bottom-color: #e34d59;
     }
   }
 
   &__input {
-    width: 100%;
-    height: 96rpx;
-    font-size: 32rpx;
-    color: @color-text-primary;
-    line-height: 96rpx;
-    padding: 0;
-    background: transparent;
+    padding: 0 !important;
+    background: transparent !important;
+  }
 
-    .login__field--password & {
-      flex: 1;
-      min-width: 0;
-      width: auto;
-    }
+  &__input-inner {
+    height: 88rpx !important;
+    min-height: 88rpx !important;
+    font-size: 30rpx !important;
+    line-height: 88rpx !important;
+    padding: 0 !important;
+    background: transparent !important;
   }
 
   &__placeholder {
     color: @color-text-placeholder;
-    font-size: 32rpx;
-  }
-
-  &__eye {
-    flex-shrink: 0;
-    width: 72rpx;
-    height: 72rpx;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    font-size: 30rpx;
   }
 
   &__wechat-panel {
@@ -188,7 +190,7 @@
     font-size: 28rpx;
     color: @color-text-muted;
     line-height: 44rpx;
-    margin: 16rpx 0 48rpx;
+    margin: 24rpx 0 56rpx;
   }
 
   &__submit {
@@ -201,7 +203,7 @@
     font-weight: 500;
     border-radius: 16rpx;
     border: none;
-    margin-top: 48rpx;
+    margin-top: 0;
     padding: 0;
 
     &::after {

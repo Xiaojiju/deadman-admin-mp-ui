@@ -2,6 +2,8 @@
   "navigationBarTitleText": "发送站内信",
   "usingComponents": {
     "t-icon": "tdesign-miniprogram/icon/icon",
+    "t-input": "tdesign-miniprogram/input/input",
+    "t-textarea": "tdesign-miniprogram/textarea/textarea",
     "t-toast": "tdesign-miniprogram/toast/toast"
   }
 }

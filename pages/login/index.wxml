@@ -7,7 +7,7 @@
       <view class="login__logo">
         <view class="login__logo-icon login__logo-icon--{{loginType}}"></view>
       </view>
-      <view class="login__slogan">欢迎使用，Deadman-Admin</view>
+      <view class="login__slogan">欢迎使用Deadman-Admin</view>
 
       <view class="login__tabs">
         <view
@@ -30,38 +30,47 @@
 
     <view class="login__form">
       <block wx:if="{{loginType === 'password'}}">
-        <view class="login__field">
-          <input
-            class="login__input"
-            placeholder="请输入账号"
-            placeholder-class="login__placeholder"
-            value="{{account}}"
-            bindinput="onAccountInput"
-          />
-        </view>
-        <view class="login__field login__field--password">
-          <input
-            wx:if="{{showPassword}}"
-            class="login__input"
-            type="text"
-            placeholder="请输入密码"
-            placeholder-class="login__placeholder"
-            value="{{password}}"
-            bindinput="onPasswordInput"
-          />
-          <input
-            wx:else
-            class="login__input"
-            placeholder="请输入密码"
-            placeholder-class="login__placeholder"
-            password
-            value="{{password}}"
-            bindinput="onPasswordInput"
-          />
-          <view class="login__eye" catch:tap="onTogglePassword">
-            <t-icon name="{{showPassword ? 'browse' : 'browse-off'}}" size="40rpx" color="{{themeColors.textMuted}}" />
+        <view class="login__fields">
+          <view class="login__field {{fieldErrors.account ? 'login__field--error' : ''}}">
+            <t-input
+              borderless
+              layout="vertical"
+              placeholder="请输入账号"
+              placeholder-class="login__placeholder"
+              value="{{account}}"
+              status="{{fieldErrors.account ? 'error' : 'default'}}"
+              tips="{{fieldErrors.account}}"
+              t-class="login__input"
+              t-class-input="login__input-inner"
+              bind:change="onAccountInput"
+            />
+          </view>
+
+          <view class="login__field {{fieldErrors.password ? 'login__field--error' : ''}}">
+            <t-input
+              borderless
+              layout="vertical"
+              type="{{showPassword ? 'text' : 'password'}}"
+              placeholder="请输入密码"
+              placeholder-class="login__placeholder"
+              value="{{password}}"
+              status="{{fieldErrors.password ? 'error' : 'default'}}"
+              tips="{{fieldErrors.password}}"
+              t-class="login__input"
+              t-class-input="login__input-inner"
+              bind:change="onPasswordInput"
+            >
+              <t-icon
+                slot="suffix-icon"
+                name="{{showPassword ? 'browse' : 'browse-off'}}"
+                size="40rpx"
+                color="{{themeColors.textMuted}}"
+                catch:tap="onTogglePassword"
+              />
+            </t-input>
           </view>
         </view>
+
         <view class="login__forget" bind:tap="onForgetPassword">忘记密码</view>
       </block>
 
@@ -73,8 +82,8 @@
       </block>
 
       <button
-        class="login__submit {{loginType === 'wechat' ? 'login__submit--wechat' : ''}} {{(loginType === 'password' && !isSubmit) || loggingIn ? 'login__submit--disabled' : ''}}"
-        disabled="{{loggingIn || (loginType === 'password' && !isSubmit)}}"
+        class="login__submit {{loginType === 'wechat' ? 'login__submit--wechat' : ''}} {{loggingIn ? 'login__submit--disabled' : ''}}"
+        disabled="{{loggingIn}}"
         bind:tap="onLogin"
       >
         <view class="btn-loading" wx:if="{{loggingIn}}">

@@ -36,25 +36,40 @@
         </view>
         <view class="dept-tree__toggle dept-tree__toggle--placeholder" wx:else></view>
 
-        <view
-          class="dept-tree__body"
-          bind:tap="onItemTap"
-          bind:longpress="onItemLongPress"
-          data-id="{{item.id}}"
-          data-name="{{item.deptName}}"
-        >
-          <view class="admin-page__item-row">
-            <view class="admin-page__item-main">
-              <view class="admin-page__item-head">
-                <text class="admin-page__item-title admin-page__item-title--inline">{{item.deptName}}</text>
-                <text class="admin-page__item-code">{{item.deptCode}}</text>
+        <t-swipe-cell class="dept-tree__swipe" disabled="{{!perms.update && !perms.remove}}">
+          <view class="dept-tree__body">
+            <view class="admin-page__item-row">
+              <view class="admin-page__item-main">
+                <view class="admin-page__item-head">
+                  <text class="admin-page__item-title admin-page__item-title--inline">{{item.deptName}}</text>
+                  <text class="admin-page__item-code">{{item.deptCode}}</text>
+                </view>
+              </view>
+              <view class="admin-page__item-aside">
+                <view class="admin-page__tag {{item.status === 0 ? 'admin-page__tag--disabled' : ''}}">{{item.statusText}}</view>
               </view>
             </view>
-            <view class="admin-page__item-aside">
-              <view class="admin-page__tag {{item.status === 0 ? 'admin-page__tag--disabled' : ''}}">{{item.statusText}}</view>
+          </view>
+          <view slot="right" class="admin-swipe__actions">
+            <view
+              wx:if="{{perms.update}}"
+              class="admin-swipe__btn admin-swipe__btn--edit"
+              catch:tap="onSwipeEdit"
+              data-id="{{item.id}}"
+            >
+              编辑
+            </view>
+            <view
+              wx:if="{{perms.remove}}"
+              class="admin-swipe__btn admin-swipe__btn--delete"
+              catch:tap="onSwipeDelete"
+              data-id="{{item.id}}"
+              data-name="{{item.deptName}}"
+            >
+              删除
             </view>
           </view>
-        </view>
+        </t-swipe-cell>
       </view>
     </view>
     <view class="admin-page__empty" wx:else>暂无部门数据</view>

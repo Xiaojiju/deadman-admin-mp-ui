@@ -8,56 +8,71 @@
       </view>
       <view class="admin-page__field" wx:else>
         <view class="admin-page__label">职位编码</view>
-        <input
-          class="admin-page__input"
+        <t-input
+          layout="vertical"
+          borderless
           placeholder="如 ENGINEER"
-          placeholder-class="admin-page__placeholder"
           value="{{positionCode}}"
-          bindinput="onPositionCodeInput"
+          status="{{fieldErrors.positionCode ? 'error' : 'default'}}"
+          tips="{{fieldErrors.positionCode}}"
+          t-class="admin-page__form-input"
+          bind:change="onPositionCodeInput"
         />
       </view>
 
       <view class="admin-page__field">
         <view class="admin-page__label">职位名称</view>
-        <input
-          class="admin-page__input"
+        <t-input
+          layout="vertical"
+          borderless
           placeholder="请输入职位名称"
-          placeholder-class="admin-page__placeholder"
           value="{{positionName}}"
-          bindinput="onPositionNameInput"
+          status="{{fieldErrors.positionName ? 'error' : 'default'}}"
+          tips="{{fieldErrors.positionName}}"
+          t-class="admin-page__form-input"
+          bind:change="onPositionNameInput"
         />
       </view>
 
       <view class="admin-page__field">
         <view class="admin-page__label">所属部门</view>
-        <view class="admin-page__picker" bind:tap="onOpenDepartmentPicker">
-          <text>{{departmentText}}</text>
-          <text>›</text>
+        <view class="admin-page__picker-trigger" bind:tap="onOpenDepartmentPicker">
+          <t-input
+            layout="vertical"
+            borderless
+            readonly
+            value="{{departmentText}}"
+            placeholder="请选择所属部门"
+            suffix="›"
+            t-class="admin-page__form-input"
+          />
         </view>
       </view>
 
       <view class="admin-page__field" wx:if="{{isEdit}}">
         <view class="admin-page__label">状态</view>
-        <view class="admin-page__picker" bind:tap="onOpenStatusPicker">
-          <text>{{statusText}}</text>
-          <text>›</text>
+        <view class="admin-page__picker-trigger" bind:tap="onOpenStatusPicker">
+          <t-input
+            layout="vertical"
+            borderless
+            readonly
+            value="{{statusText}}"
+            suffix="›"
+            t-class="admin-page__form-input"
+          />
         </view>
       </view>
     </view>
-
-    <view class="admin-page__footer">
-      <button
-        class="admin-page__btn admin-page__btn--primary {{canSubmit ? '' : 'admin-page__btn--disabled'}}"
-        disabled="{{!canSubmit || submitting}}"
-        bind:tap="onSubmit"
-      >
-        <view class="btn-loading" wx:if="{{submitting}}">
-          <t-loading theme="circular" size="40rpx" inherit-color />
-        </view>
-        <block wx:else>保存</block>
-      </button>
-    </view>
   </scroll-view>
+
+  <view class="admin-page__footer admin-page__footer--fixed">
+    <button class="admin-page__btn admin-page__btn--primary" disabled="{{submitting}}" bind:tap="onSubmit">
+      <view class="btn-loading" wx:if="{{submitting}}">
+        <t-loading theme="circular" size="40rpx" inherit-color />
+      </view>
+      <block wx:else>保存</block>
+    </button>
+  </view>
 
   <t-picker
     visible="{{departmentVisible}}"

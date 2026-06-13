@@ -1,6 +1,6 @@
 <page-meta page-style="{{pageStyle}}" />
-<scroll-view class="page admin-page theme-root {{themeClass}}" scroll-y enhanced show-scrollbar="{{false}}">
-  <view class="admin-page__scroll">
+<view class="page admin-page theme-root {{themeClass}}">
+  <scroll-view class="admin-page__scroll" scroll-y enhanced show-scrollbar="{{false}}">
     <view class="admin-page__form">
       <view class="admin-page__field" wx:if="{{isEdit}}">
         <view class="admin-page__label">角色编码</view>
@@ -8,69 +8,84 @@
       </view>
       <view class="admin-page__field" wx:else>
         <view class="admin-page__label">角色编码</view>
-        <input
-          class="admin-page__input"
+        <t-input
+          layout="vertical"
+          borderless
           placeholder="如 MANAGER"
-          placeholder-class="admin-page__placeholder"
           value="{{roleCode}}"
-          bindinput="onRoleCodeInput"
+          status="{{fieldErrors.roleCode ? 'error' : 'default'}}"
+          tips="{{fieldErrors.roleCode}}"
+          t-class="admin-page__form-input"
+          bind:change="onRoleCodeInput"
         />
       </view>
 
       <view class="admin-page__field">
         <view class="admin-page__label">角色名称</view>
-        <input
-          class="admin-page__input"
+        <t-input
+          layout="vertical"
+          borderless
           placeholder="请输入角色名称"
-          placeholder-class="admin-page__placeholder"
           value="{{roleName}}"
-          bindinput="onRoleNameInput"
+          status="{{fieldErrors.roleName ? 'error' : 'default'}}"
+          tips="{{fieldErrors.roleName}}"
+          t-class="admin-page__form-input"
+          bind:change="onRoleNameInput"
         />
       </view>
 
       <view class="admin-page__field">
         <view class="admin-page__label">描述</view>
-        <textarea
-          class="admin-page__textarea"
+        <t-textarea
           placeholder="可选"
-          placeholder-class="admin-page__placeholder"
           value="{{description}}"
-          bindinput="onDescriptionInput"
           maxlength="256"
+          disableDefaultPadding
+          t-class="admin-page__form-input"
+          bind:change="onDescriptionInput"
         />
       </view>
 
       <view class="admin-page__field" wx:if="{{isEdit && !systemBuiltin}}">
         <view class="admin-page__label">状态</view>
         <picker mode="selector" range="{{['正常', '禁用']}}" value="{{status === 1 ? 0 : 1}}" bindchange="onStatusChange">
-          <view class="admin-page__picker">
-            <text>{{statusText}}</text>
-            <text>›</text>
+          <view class="admin-page__picker-trigger">
+            <t-input
+              layout="vertical"
+              borderless
+              readonly
+              value="{{statusText}}"
+              suffix="›"
+              t-class="admin-page__form-input"
+            />
           </view>
         </picker>
       </view>
 
       <view class="admin-page__field" wx:if="{{isEdit && perms.assignPerm}}">
         <view class="admin-page__label">权限</view>
-        <view class="admin-page__picker" bind:tap="onAssignPermissions">
-          <text>分配权限</text>
-          <text>›</text>
+        <view class="admin-page__picker-trigger" bind:tap="onAssignPermissions">
+          <t-input
+            layout="vertical"
+            borderless
+            readonly
+            value="分配权限"
+            suffix="›"
+            t-class="admin-page__form-input"
+          />
         </view>
       </view>
     </view>
+  </scroll-view>
 
-    <view class="admin-page__footer">
-      <button
-        class="admin-page__btn admin-page__btn--primary {{canSubmit ? '' : 'admin-page__btn--disabled'}}"
-        disabled="{{!canSubmit || submitting}}"
-        bind:tap="onSubmit"
-      >
-        <view class="btn-loading" wx:if="{{submitting}}">
-          <t-loading theme="circular" size="40rpx" inherit-color />
-        </view>
-        <block wx:else>保存</block>
-      </button>
-    </view>
+  <view class="admin-page__footer admin-page__footer--fixed">
+    <button class="admin-page__btn admin-page__btn--primary" disabled="{{submitting}}" bind:tap="onSubmit">
+      <view class="btn-loading" wx:if="{{submitting}}">
+        <t-loading theme="circular" size="40rpx" inherit-color />
+      </view>
+      <block wx:else>保存</block>
+    </button>
   </view>
+
   <t-toast id="t-toast" />
-</scroll-view>
+</view>

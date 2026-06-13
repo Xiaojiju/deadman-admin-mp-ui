@@ -8,6 +8,7 @@ import useAuthorityBehavior, { PermissionCode } from '~/behaviors/useAuthority';
 import useThemeBehavior from '~/behaviors/useTheme';
 import useToastBehavior from '~/behaviors/useToast';
 import { flattenDepartmentTree, getStatusText, normalizePickerId } from '~/utils/admin';
+import { createFieldErrors, inputPatch, mergeValidation } from '~/utils/form-field';
 
 Page({
   behaviors: [useThemeBehavior, useToastBehavior, useAuthorityBehavior],
@@ -30,16 +31,19 @@ Page({
       { label: '正常', value: 1 },
       { label: '禁用', value: 0 },
     ],
-    canSubmit: false,
+    fieldErrors: createFieldErrors(['deptCode', 'deptName']),
     submitting: false,
   },
 
   async onLoad(options) {
-    await this.initAuthority();
-    this.setPermFlags({
-      create: PermissionCode.DEPT_CREATE,
-      update: PermissionCode.DEPT_UPDATE,
-    });
+    const authority = await this.initAuthority();
+    this.setPermFlags(
+      {
+        create: PermissionCode.DEPT_CREATE,
+        update: PermissionCode.DEPT_UPDATE,
+      },
+      authority,
+    );
 
     const id = options.id || '';
     const isEdit = !!id;
@@ -49,8 +53,6 @@ Page({
     await this.loadParentOptions(id);
     if (isEdit) {
       await this.loadDetail(id);
-    } else {
-      this.updateSubmitState();
     }
   },
 
@@ -93,28 +95,43 @@ Page({
         statusText: getStatusText(data.status),
         statusPickerValue: [data.status ?? 1],
       });
-      this.updateSubmitState();
     } catch (err) {
       this.onShowToast('#t-toast', err?.msg || '加载失败');
     }
   },
 
-  updateSubmitState() {
+  validateForm() {
     const { isEdit, deptCode, deptName, perms } = this.data;
-    const canSubmit = isEdit
-      ? perms.update && deptName.trim() !== ''
-      : perms.create && deptCode.trim() !== '' && deptName.trim() !== '';
-    this.setData({ canSubmit });
+
+    if (isEdit && !perms.update) {
+      this.onShowToast('#t-toast', '无编辑权限');
+      return false;
+    }
+    if (!isEdit && !perms.create) {
+      this.onShowToast('#t-toast', '无创建权限');
+      return false;
+    }
+
+    const checks = [{ field: 'deptName', message: '请输入部门名称', ok: deptName.trim() !== '' }];
+    if (!isEdit) {
+      checks.unshift({
+        field: 'deptCode',
+        message: '请输入部门编码',
+        ok: deptCode.trim() !== '',
+      });
+    }
+
+    const { valid, errors } = mergeValidation(this.data.fieldErrors, checks);
+    this.setData({ fieldErrors: errors });
+    return valid;
   },
 
   onDeptCodeInput(e) {
-    this.setData({ deptCode: e.detail.value });
-    this.updateSubmitState();
+    this.setData(inputPatch(this.data, 'deptCode', e.detail.value));
   },
 
   onDeptNameInput(e) {
-    this.setData({ deptName: e.detail.value });
-    this.updateSubmitState();
+    this.setData(inputPatch(this.data, 'deptName', e.detail.value));
   },
 
   onOpenParentPicker() {
@@ -156,7 +173,8 @@ Page({
   },
 
   async onSubmit() {
-    if (!this.data.canSubmit || this.data.submitting) return;
+    if (this.data.submitting) return;
+    if (!this.validateForm()) return;
 
     const { isEdit, id, deptCode, deptName, status, selectedParentId } = this.data;
     const payload = {

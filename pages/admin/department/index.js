@@ -5,6 +5,8 @@ import useToastBehavior from '~/behaviors/useToast';
 import {
   buildDepartmentSearchList,
   buildDepartmentVisibleList,
+  confirmAdminDelete,
+  normalizePickerId,
 } from '~/utils/admin';
 
 Page({
@@ -58,8 +60,8 @@ Page({
 
   onToggleExpand(e) {
     if (this.data.keyword.trim()) return;
-    const id = Number(e.currentTarget.dataset.id);
-    const expandedIds = [...this.data.expandedIds];
+    const id = normalizePickerId(e.currentTarget.dataset.id);
+    const expandedIds = this.data.expandedIds.map((item) => normalizePickerId(item));
     const index = expandedIds.indexOf(id);
     if (index >= 0) expandedIds.splice(index, 1);
     else expandedIds.push(id);
@@ -71,20 +73,25 @@ Page({
     wx.navigateTo({ url: '/pages/admin/department/form/index' });
   },
 
-  onItemTap(e) {
+  onSwipeEdit(e) {
+    if (!this.data.perms.update) {
+      this.onShowToast('#t-toast', '无编辑权限');
+      return;
+    }
     const { id } = e.currentTarget.dataset;
     wx.navigateTo({ url: `/pages/admin/department/form/index?id=${id}` });
   },
 
-  onItemLongPress(e) {
-    if (!this.data.perms.remove) return;
+  onSwipeDelete(e) {
+    if (!this.data.perms.remove) {
+      this.onShowToast('#t-toast', '无删除权限');
+      return;
+    }
     const { id, name } = e.currentTarget.dataset;
-    wx.showModal({
+    confirmAdminDelete({
       title: '删除部门',
-      content: `确定删除「${name}」吗？`,
-      confirmColor: '#e34d59',
-      success: async (res) => {
-        if (!res.confirm) return;
+      name,
+      onConfirm: async () => {
         try {
           await deleteDepartment(id);
           this.onShowToast('#t-toast', '已删除');
