@@ -1,4 +1,4 @@
 export default {
   isMock: false,
-  baseUrl: 'http://192.168.1.237:8080',
+  baseUrl: 'http://localhost:8080',
 };

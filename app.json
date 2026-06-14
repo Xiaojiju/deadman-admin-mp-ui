@@ -27,8 +27,10 @@
         "position/index",
         "position/form/index",
         "user/index",
+        "user/detail/index",
         "user/form/index",
         "user/roles/index",
+        "user/data-scope/index",
         "role/index",
         "role/form/index",
         "role/permissions/index"

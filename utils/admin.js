@@ -9,6 +9,22 @@ export const STATUS_PICKER_OPTIONS = [
   { label: '禁用', value: 0 },
 ];
 
+export const DATA_SCOPE_PICKER_OPTIONS = [
+  { label: '全部数据', value: 'ALL' },
+  { label: '自定义部门', value: 'CUSTOM' },
+  { label: '本部门及下级', value: 'DEPT_AND_CHILD' },
+  { label: '仅本部门', value: 'DEPT' },
+  { label: '仅本人', value: 'SELF' },
+];
+
+const DATA_SCOPE_TEXT_MAP = Object.fromEntries(
+  DATA_SCOPE_PICKER_OPTIONS.map((item) => [item.value, item.label]),
+);
+
+export function getDataScopeText(scopeType) {
+  return DATA_SCOPE_TEXT_MAP[scopeType] || scopeType || '-';
+}
+
 /** dataset 中 boolean 常为字符串 */
 export function isDatasetTruthy(value) {
   return value === true || value === 'true';

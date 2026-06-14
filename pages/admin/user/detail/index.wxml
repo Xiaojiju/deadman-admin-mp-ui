@@ -1,0 +1,84 @@
+<page-meta page-style="{{pageStyle}}" />
+<view class="page admin-page theme-root {{themeClass}}">
+  <scroll-view class="admin-page__scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="admin-page__loading" wx:if="{{loading}}">
+      <t-loading theme="circular" size="48rpx" inherit-color />
+    </view>
+
+    <block wx:else>
+      <view class="user-detail__summary">
+        <image
+          wx:if="{{avatarDisplay}}"
+          class="user-detail__avatar"
+          src="{{avatarDisplay}}"
+          mode="aspectFill"
+        />
+        <view wx:else class="user-detail__avatar user-detail__avatar--placeholder">
+          <t-icon name="user" size="72rpx" color="{{themeColors.textMuted}}" />
+        </view>
+        <view class="user-detail__summary-info">
+          <view class="user-detail__name-row">
+            <text class="user-detail__name">{{displayName}}</text>
+            <view class="admin-page__tag {{status === 0 ? 'admin-page__tag--disabled' : ''}}">{{statusText}}</view>
+          </view>
+          <text class="user-detail__username">{{username}}</text>
+          <text class="user-detail__badge" wx:if="{{superAdmin}}">系统管理员</text>
+        </view>
+      </view>
+
+      <view class="admin-page__form">
+        <view class="admin-page__field">
+          <view class="admin-page__label">用户编码</view>
+          <view class="admin-page__readonly">{{userCode || '-'}}</view>
+        </view>
+
+        <view class="admin-page__field">
+          <view class="admin-page__label">昵称</view>
+          <view class="admin-page__readonly">{{nickname || '-'}}</view>
+        </view>
+
+        <view class="admin-page__field">
+          <view class="admin-page__label">手机号</view>
+          <view class="admin-page__readonly">{{phone || '-'}}</view>
+        </view>
+
+        <view class="admin-page__field">
+          <view class="admin-page__label">部门</view>
+          <view class="admin-page__readonly">{{departmentName}}</view>
+        </view>
+
+        <view class="admin-page__field">
+          <view class="admin-page__label">职位</view>
+          <view class="admin-page__readonly">{{positionsText}}</view>
+        </view>
+
+        <view class="admin-page__field">
+          <view class="admin-page__label">角色</view>
+          <view class="admin-page__readonly">{{rolesText}}</view>
+        </view>
+
+        <view class="admin-page__field">
+          <view class="admin-page__label">数据范围</view>
+          <view class="admin-page__readonly">{{dataScopeText}}</view>
+          <view class="user-detail__hint" wx:if="{{customDeptText}}">{{customDeptText}}</view>
+        </view>
+
+        <view class="admin-page__field" wx:if="{{createTimeText}}">
+          <view class="admin-page__label">创建时间</view>
+          <view class="admin-page__readonly">{{createTimeText}}</view>
+        </view>
+
+        <view class="admin-page__field" wx:if="{{updateTimeText}}">
+          <view class="admin-page__label">更新时间</view>
+          <view class="admin-page__readonly">{{updateTimeText}}</view>
+        </view>
+      </view>
+    </block>
+  </scroll-view>
+
+  <view class="admin-page__footer admin-page__footer--fixed" wx:if="{{!loading && perms.update}}">
+    <button class="admin-page__btn admin-page__btn--primary" bind:tap="onEdit">编辑用户</button>
+  </view>
+
+  <t-toast id="t-toast" />
+</view>

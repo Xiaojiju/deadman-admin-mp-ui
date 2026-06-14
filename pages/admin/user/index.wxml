@@ -29,7 +29,7 @@
         class="admin-page__swipe-item"
         disabled="{{!perms.update && !perms.remove}}"
       >
-        <view class="admin-page__item admin-page__item--flat">
+        <view class="admin-page__item admin-page__item--flat admin-page__item--tap" bind:tap="onItemTap" data-id="{{item.id}}">
           <view class="admin-page__item-row">
             <view class="admin-page__item-main">
               <view class="admin-page__item-head">
@@ -54,6 +54,15 @@
             编辑
           </view>
           <view
+            wx:if="{{perms.update}}"
+            class="admin-swipe__btn admin-swipe__btn--scope"
+            catch:tap="onSwipeDataScope"
+            data-id="{{item.id}}"
+            data-name="{{item.displayName}}"
+          >
+            数据范围
+          </view>
+          <view
             wx:if="{{perms.remove && !item.superAdmin}}"
             class="admin-swipe__btn admin-swipe__btn--delete"
             catch:tap="onSwipeDelete"
@@ -75,5 +84,16 @@
   </scroll-view>
 
   <admin-fab visible="{{perms.create}}" bind:tap="onCreate" />
+
+  <t-picker
+    visible="{{dataScopeVisible}}"
+    value="{{dataScopePickerValue}}"
+    title="选择数据范围{{dataScopeUserName ? ' · ' + dataScopeUserName : ''}}"
+    bindconfirm="onDataScopeConfirm"
+    bindcancel="onDataScopeCancel"
+  >
+    <t-picker-item options="{{dataScopePickerOptions}}"></t-picker-item>
+  </t-picker>
+
   <t-toast id="t-toast" />
 </view>

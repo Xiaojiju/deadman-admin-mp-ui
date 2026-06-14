@@ -1,0 +1,69 @@
+@import '/styles/admin.less';
+@import '/variable.less';
+
+.dept-select {
+  &__card {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    margin-bottom: 20rpx;
+    padding: 28rpx 32rpx;
+    background: @color-bg-card;
+    border: 2rpx solid @color-border;
+    border-radius: 16rpx;
+    overflow: hidden;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+    &--active {
+      border-color: @color-primary;
+      box-shadow: 0 4rpx 20rpx @color-primary-shadow;
+    }
+  }
+
+  &__checkbox {
+    position: absolute !important;
+    left: 0;
+    top: 0;
+    width: 100% !important;
+    height: 100% !important;
+    opacity: 0;
+    z-index: 2;
+  }
+
+  &__icon {
+    position: absolute;
+    top: 16rpx;
+    right: 16rpx;
+    color: @color-primary !important;
+  }
+
+  &__body {
+    flex: 1;
+    min-width: 0;
+    padding-right: 48rpx;
+  }
+
+  &__name {
+    display: block;
+    font-size: 30rpx;
+    font-weight: 600;
+    color: @color-text-primary;
+    line-height: 44rpx;
+    word-break: break-all;
+  }
+
+  &__code {
+    display: block;
+    margin-top: 8rpx;
+    font-size: 24rpx;
+    color: @color-text-muted;
+    line-height: 36rpx;
+  }
+}
+
+.admin-page__section-title--sub {
+  margin-top: -8rpx;
+  font-size: 24rpx;
+  font-weight: 400;
+  color: @color-text-secondary;
+}

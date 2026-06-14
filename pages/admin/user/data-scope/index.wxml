@@ -1,0 +1,53 @@
+<wxs module="_">
+module.exports.contain = function(arr, key) {
+  return arr.indexOf(key) > -1;
+};
+</wxs>
+
+<page-meta page-style="{{pageStyle}}" />
+<view class="page admin-page theme-root {{themeClass}}">
+  <scroll-view class="admin-page__scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="admin-page__section-title" wx:if="{{userName}}">用户：{{userName}}</view>
+    <view class="admin-page__section-title admin-page__section-title--sub">选择可见部门（至少一项）</view>
+
+    <view class="admin-page__loading" wx:if="{{loading}}">
+      <t-loading theme="circular" size="48rpx" inherit-color />
+    </view>
+    <view class="dept-select" wx:else>
+      <t-checkbox-group value="{{selectedDeptIds}}" bind:change="onDeptChange">
+        <view
+          wx:for="{{deptList}}"
+          wx:key="id"
+          class="dept-select__card {{_.contain(selectedDeptIds, item.id) ? 'dept-select__card--active' : ''}}"
+        >
+          <t-icon
+            wx:if="{{_.contain(selectedDeptIds, item.id)}}"
+            name="check"
+            t-class="dept-select__icon"
+            ariaHidden="{{true}}"
+          />
+          <view class="dept-select__body">
+            <text class="dept-select__name">{{item.deptName}}</text>
+            <text class="dept-select__code">{{item.deptCode}}</text>
+          </view>
+          <t-checkbox value="{{item.id}}" icon="none" borderless t-class="dept-select__checkbox" />
+        </view>
+      </t-checkbox-group>
+    </view>
+  </scroll-view>
+
+  <view class="admin-page__footer admin-page__footer--fixed">
+    <button
+      class="admin-page__btn admin-page__btn--primary"
+      disabled="{{submitting}}"
+      bind:tap="onSubmit"
+    >
+      <view class="btn-loading" wx:if="{{submitting}}">
+        <t-loading theme="circular" size="40rpx" inherit-color />
+      </view>
+      <block wx:else>保存</block>
+    </button>
+  </view>
+
+  <t-toast id="t-toast" />
+</view>

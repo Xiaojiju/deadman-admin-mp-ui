@@ -1,9 +1,9 @@
-import { deleteUser, fetchUserList } from '@admin/api/user-admin';
+import { assignUserDataScope, deleteUser, fetchUserList, getUserDataScope } from '@admin/api/user-admin';
 import useAdminSwipeBehavior from '@admin/behaviors/useAdminSwipe';
 import useAuthorityBehavior, { PermissionCode } from '~/behaviors/useAuthority';
 import useThemeBehavior from '~/behaviors/useTheme';
 import useToastBehavior from '~/behaviors/useToast';
-import { getStatusText, isDatasetTruthy, isSystemAdminUser } from '~/utils/admin';
+import { DATA_SCOPE_PICKER_OPTIONS, getStatusText, isDatasetTruthy, isSystemAdminUser } from '~/utils/admin';
 
 Page({
   behaviors: [useThemeBehavior, useToastBehavior, useAuthorityBehavior, useAdminSwipeBehavior],
@@ -16,6 +16,12 @@ Page({
     hasMore: true,
     loading: true,
     loadingMore: false,
+    dataScopeVisible: false,
+    dataScopePickerValue: ['DEPT'],
+    dataScopePickerOptions: DATA_SCOPE_PICKER_OPTIONS,
+    dataScopeUserId: '',
+    dataScopeUserName: '',
+    dataScopeSubmitting: false,
   },
 
   searchTimer: null,
@@ -123,5 +129,74 @@ Page({
 
   onCreate() {
     wx.navigateTo({ url: '/pages/admin/user/form/index' });
+  },
+
+  onItemTap(e) {
+    const { id } = e.currentTarget.dataset;
+    if (!id) return;
+    wx.navigateTo({ url: `/pages/admin/user/detail/index?id=${id}` });
+  },
+
+  async onSwipeDataScope(e) {
+    if (!this.data.perms?.update) {
+      this.onShowToast('#t-toast', '无编辑权限');
+      return;
+    }
+
+    const { id, name } = e.currentTarget.dataset;
+    try {
+      const res = await getUserDataScope(id);
+      const data = res.data || {};
+      const scopeType = data.scopeType || 'DEPT';
+      this._pendingDataScope = data;
+      this.setData({
+        dataScopeUserId: id,
+        dataScopeUserName: name || '',
+        dataScopePickerValue: [scopeType],
+        dataScopeVisible: true,
+      });
+    } catch (err) {
+      this.onShowToast('#t-toast', err?.msg || '加载数据范围失败');
+    }
+  },
+
+  onDataScopeCancel() {
+    this.setData({ dataScopeVisible: false });
+  },
+
+  async onDataScopeConfirm(e) {
+    const scopeType = e.detail.value?.[0];
+    const { dataScopeUserId } = this.data;
+    this.setData({ dataScopeVisible: false });
+
+    if (!dataScopeUserId || !scopeType) return;
+
+    if (scopeType === 'CUSTOM') {
+      wx.navigateTo({
+        url: `/pages/admin/user/data-scope/index?userId=${dataScopeUserId}`,
+        events: {
+          dataScopeSaved: () => {
+            this.onShowToast('#t-toast', '数据范围已更新');
+          },
+        },
+        success: (res) => {
+          res.eventChannel.emit('initDataScope', {
+            customDeptIds: (this._pendingDataScope?.customDeptIds || []).map(String),
+          });
+        },
+      });
+      return;
+    }
+
+    if (this.data.dataScopeSubmitting) return;
+    this.setData({ dataScopeSubmitting: true });
+    try {
+      await assignUserDataScope(dataScopeUserId, { scopeType });
+      this.onShowToast('#t-toast', '数据范围已更新');
+    } catch (err) {
+      this.onShowToast('#t-toast', err?.msg || '保存失败');
+    } finally {
+      this.setData({ dataScopeSubmitting: false });
+    }
   },
 });

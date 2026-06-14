@@ -30,3 +30,15 @@ export function resetUserPassword(userId, newPassword) {
 export function assignUserRoles(userId, roleIds) {
   return request(`/api/users/${userId}/roles`, 'PUT', { roleIds });
 }
+
+export function getUserDataScope(userId) {
+  return request(`/api/users/${userId}/data-scope`, 'GET');
+}
+
+export function assignUserDataScope(userId, { scopeType, customDeptIds } = {}) {
+  const body = { scopeType };
+  if (customDeptIds !== undefined) {
+    body.customDeptIds = customDeptIds;
+  }
+  return request(`/api/users/${userId}/data-scope`, 'PUT', body);
+}
